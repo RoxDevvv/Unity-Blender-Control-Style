@@ -21,6 +21,8 @@ public class BlenderScaleEditor : Editor
             initialScale = ((Transform)target).localScale;
             mouseStartPosition = e.mousePosition;
             selectedAxis = Vector3.one;
+
+            ObjectAxis = Vector3.zero;
         }
 
 

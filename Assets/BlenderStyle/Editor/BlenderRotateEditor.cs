@@ -21,6 +21,8 @@ public class BlenderRotateEditor : Editor
             initialRotation = ((Transform)target).localEulerAngles;
             mouseStartPosition = e.mousePosition;
             selectedAxis = Vector3.one;
+
+            ObjectAxis = Vector3.one;
         }
 
 

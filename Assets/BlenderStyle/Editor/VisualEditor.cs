@@ -67,7 +67,8 @@ public class ChangeMouseCursorInEditor
     }
     static void DrawAxisLine()
     {
-
+        if (ObjectAxis == Vector3.one || ObjectAxis == Vector3.zero)
+            return;
 
         Handles.color = WorldAxis switch
         {

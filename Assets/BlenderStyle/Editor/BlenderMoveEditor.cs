@@ -25,6 +25,9 @@ public class BlenderMoveEditor : Editor
 
             // Calculate the initial offset
             initialOffset = ((Transform)target).position - GetWorldMouse();
+
+            
+            ObjectAxis = Vector3.zero;
         }
 
 
@@ -47,7 +50,7 @@ public class BlenderMoveEditor : Editor
 
 
             var WorldMouse = GetWorldMouse();
-
+ 
             ((Transform)target).position = new Vector3(
                selectedAxis.x == 0 ? initialPosition.x : WorldMouse.x + initialOffset.x,
                selectedAxis.y == 0 ? initialPosition.y : WorldMouse.y + initialOffset.y,
@@ -71,7 +74,7 @@ public class BlenderMoveEditor : Editor
             DrawAxis?.Invoke();
         }
     }
-    
+
     Vector3 GetWorldMouse()
     {
         Camera sceneViewCamera = SceneView.lastActiveSceneView.camera;

@@ -11,6 +11,7 @@ public class BlenderMoveEditor : Editor
     public void ObjectMove()
     {
         Event e = Event.current;
+        Transform targetObj = (Transform)target;
 
         if (e.type == EventType.KeyDown
         && e.keyCode == KeyCode.G
@@ -19,14 +20,14 @@ public class BlenderMoveEditor : Editor
 
             // Activate Move mode when "G" key is pressed
             CurrentTransformMode = TransformMode.Move;
-            initialPosition = ((Transform)target).position;
+            initialPosition = targetObj.position;
 
             selectedAxis = Vector3.one;
 
             // Calculate the initial offset
-            initialOffset = ((Transform)target).position - GetWorldMouse();
+            initialOffset = targetObj.position - GetWorldMouse();
 
-            
+
             ObjectAxis = Vector3.zero;
         }
 
@@ -37,25 +38,29 @@ public class BlenderMoveEditor : Editor
             if (AxisCode != KeyCode.None)
             {
                 selectedAxis = BlenderHelper.GetAxisVector(AxisCode);
-                ((Transform)target).position = initialPosition;
+                targetObj.position = initialPosition;
                 initialOffset = initialPosition - GetWorldMouse();
                 IntialObjectPosition = initialPosition;
 
-                ObjectAxis = BlenderHelper.GetObjectAxis((Transform)target, selectedAxis);
+                ObjectAxis = BlenderHelper.GetObjectAxis(targetObj, selectedAxis);
                 WorldAxis = selectedAxis;
             }
 
 
-            SelectedObject = (Transform)target;
+            SelectedObject = targetObj;
 
 
             var WorldMouse = GetWorldMouse();
- 
-            ((Transform)target).position = new Vector3(
-               selectedAxis.x == 0 ? initialPosition.x : WorldMouse.x + initialOffset.x,
-               selectedAxis.y == 0 ? initialPosition.y : WorldMouse.y + initialOffset.y,
-               selectedAxis.z == 0 ? initialPosition.z : WorldMouse.z + initialOffset.z
-            );
+
+            if (ObjectAxis == Vector3.zero)
+            {
+                targetObj.position = WorldMouse + initialOffset;
+            }
+            else
+            {
+                // toDo : fix jumping
+                targetObj.position = initialPosition + ObjectAxis * (WorldMouse.x + initialOffset.x);
+            }
 
             if (BlenderHelper.CancelKeyPressed(e))
             {
@@ -66,7 +71,7 @@ public class BlenderMoveEditor : Editor
             if (BlenderHelper.RevertKeyPressed(e))
             {
                 // Revert changes and deactivate move mode on right mouse button
-                ((Transform)target).position = initialPosition;
+                targetObj.position = initialPosition;
                 CurrentTransformMode = TransformMode.None;
             }
 

@@ -55,3 +55,6 @@ We welcome contributions! Feel free to submit issues, pull requests, or reach ou
 
 This project is licensed under the MIT License.
 
+
+## 💸 Donation
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/roxdevvv)

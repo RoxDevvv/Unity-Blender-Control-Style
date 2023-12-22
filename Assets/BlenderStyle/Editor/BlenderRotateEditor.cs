@@ -16,6 +16,8 @@ public class BlenderRotateEditor : Editor
         && e.keyCode == KeyCode.R
         && CurrentTransformMode != TransformMode.Rotate)
         {
+            // Record the initial state for undo
+            Undo.RegisterCompleteObjectUndo((Transform)target, "Rotate Object");
             // Activate scale mode when "R" key is pressed
             CurrentTransformMode = TransformMode.Rotate;
             initialRotation = ((Transform)target).localEulerAngles;

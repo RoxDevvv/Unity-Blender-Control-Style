@@ -17,4 +17,6 @@ public static class TransformModeManager
     public static Vector3 ObjectAxis { get; set; }
     public static Vector3 WorldAxis { get; set; }
     public static Action DrawAxis;
+    public static bool isBlenderPluginEnabled = true;
+
 }

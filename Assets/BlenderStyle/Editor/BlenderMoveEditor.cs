@@ -18,7 +18,8 @@ public class BlenderMoveEditor : Editor
         && e.keyCode == KeyCode.G
         && CurrentTransformMode != TransformMode.Move)
         {
-
+            // Record the initial state for undo
+            Undo.RegisterCompleteObjectUndo((Transform)target, "Move Object");
             // Activate Move mode when "G" key is pressed
             CurrentTransformMode = TransformMode.Move;
             initialPosition = targetObj.position;

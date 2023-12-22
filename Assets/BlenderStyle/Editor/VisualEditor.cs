@@ -6,24 +6,11 @@ using static TransformModeManager;
 [InitializeOnLoad]
 public class ChangeMouseCursorInEditor
 {
-    // [DllImport("user32.dll")]
-    // [return: MarshalAs(UnmanagedType.Bool)]
-    // private static extern bool SetCursorPos(int x, int y);
-
-    private static Rect sceneViewBounds;
     static ChangeMouseCursorInEditor()
     {
         SceneView.duringSceneGui += OnSceneGUI;
         DrawAxis += CreateAxis;
-        // Get the bounds of the Scene view
-        SceneView sceneView = SceneView.lastActiveSceneView;
-
-        if (sceneView != null)
-        {
-            sceneViewBounds = sceneView.position;
-        }
     }
-
     private static void CreateAxis()
     {
         if (SelectedObject != null)
@@ -33,24 +20,16 @@ public class ChangeMouseCursorInEditor
     }
     static void OnSceneGUI(SceneView sceneView)
     {
-        // Update the Scene view bounds if it changes
-        sceneViewBounds = sceneView.position;
-
         Handles.BeginGUI();
 
         // Clamp cursor position to stay within Scene view bounds
         Vector2 cursorPos = Event.current.mousePosition;
-        //  cursorPos.x = Mathf.Clamp(cursorPos.x, sceneViewBounds.x, sceneViewBounds.x + sceneViewBounds.width);
-        // cursorPos.y = Mathf.Clamp(cursorPos.y, sceneViewBounds.y, sceneViewBounds.y + sceneViewBounds.height);
 
         if (CurrentTransformMode == TransformMode.Scale || CurrentTransformMode == TransformMode.Rotate)
         {
 
             EditorGUIUtility.AddCursorRect(new Rect(0, 0, Screen.width, Screen.height), MouseCursor.ResizeUpRight);
 
-            // todo 1
-            // Texture2D arrowTexture = EditorGUIUtility.IconContent("RotateTool On").image as Texture2D;
-            // GUI.DrawTexture(new Rect(cursorPos.x, cursorPos.y, 50, 50), arrowTexture);
             if (SelectedObject != null)
             {
                 // Calculate the center of the object in screen space

@@ -16,6 +16,8 @@ public class BlenderScaleEditor : Editor
         && e.keyCode == KeyCode.S
         && CurrentTransformMode != TransformMode.Scale)
         {
+            // Record the initial state for undo
+            Undo.RegisterCompleteObjectUndo((Transform)target, "Scale Object");
             // Activate scale mode when "S" key is pressed
             CurrentTransformMode = TransformMode.Scale;
             initialScale = ((Transform)target).localScale;
@@ -69,7 +71,6 @@ public class BlenderScaleEditor : Editor
             {
                 // Revert changes and deactivate scale mode on right mouse button
                 ((Transform)target).localScale = initialScale;
-
                 CurrentTransformMode = TransformMode.None;
             }
 

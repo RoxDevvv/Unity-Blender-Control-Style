@@ -8,6 +8,7 @@ public class BlenderMoveEditor : Editor
     private Vector3 selectedAxis;
 
     Vector3 initialOffset;
+
     public void ObjectMove()
     {
         Event e = Event.current;
@@ -42,6 +43,7 @@ public class BlenderMoveEditor : Editor
                 initialOffset = initialPosition - GetWorldMouse();
                 IntialObjectPosition = initialPosition;
 
+
                 ObjectAxis = BlenderHelper.GetObjectAxis(targetObj, selectedAxis);
                 WorldAxis = selectedAxis;
             }
@@ -49,17 +51,17 @@ public class BlenderMoveEditor : Editor
 
             SelectedObject = targetObj;
 
-
-            var WorldMouse = GetWorldMouse();
-
+            Vector3 currentMousePosition = GetWorldMouse();
             if (ObjectAxis == Vector3.zero)
             {
-                targetObj.position = WorldMouse + initialOffset;
+                targetObj.position = currentMousePosition + initialOffset;
             }
             else
             {
-                // toDo : fix jumping
-                targetObj.position = initialPosition + ObjectAxis * (WorldMouse.x + initialOffset.x);
+                // Calculate the distance along the object axis
+                float distance = Vector3.Dot(ObjectAxis, currentMousePosition - initialPosition + initialOffset);
+                // Update the object's position
+                targetObj.position = initialPosition + (ObjectAxis * distance);
             }
 
             if (BlenderHelper.CancelKeyPressed(e))

@@ -5,23 +5,41 @@ public static class BlenderHelper
 {
     public static Vector3 GetObjectAxis(Transform target, Vector3 VectorAxis)
     {
-        return VectorAxis switch
+        if (VectorAxis == Vector3.right)
         {
-            Vector3 right when right == Vector3.right => target.right,
-            Vector3 up when up == Vector3.up => target.up,
-            Vector3 forward when forward == Vector3.forward => target.forward,
-            _ => Vector3.zero,
-        };
+            return target.right;
+        }
+        else if (VectorAxis == Vector3.up)
+        {
+            return target.up;
+        }
+        else if (VectorAxis == Vector3.forward)
+        {
+            return target.forward;
+        }
+        else
+        {
+            return Vector3.zero;
+        }
     }
     public static Vector3 GetAxisVector(KeyCode keyCode)
     {
-        return keyCode switch
+        if (keyCode == KeyCode.X)
         {
-            KeyCode.X => Vector3.right,
-            KeyCode.Y => Vector3.up,
-            KeyCode.Z => Vector3.forward,
-            _ => Vector3.one,
-        };
+            return Vector3.right;
+        }
+        else if (keyCode == KeyCode.Y)
+        {
+            return Vector3.up;
+        }
+        else if (keyCode == KeyCode.Z)
+        {
+            return Vector3.forward;
+        }
+        else
+        {
+            return Vector3.one;
+        }
     }
     public static bool CancelKeyPressed(Event e)
     {

@@ -82,7 +82,7 @@ public class BlenderRotateEditor : Editor
     float AngleBetweenVector2(Vector3 vec1, Vector3 vec2)
     {
         Vector3 from = vec2 - vec1;
-        Vector3 to = new(1, 0, 0); // You can change this to your desired reference vector
+        Vector3 to = new Vector3(1, 0, 0); // You can change this to your desired reference vector
 
         float angle = Vector3.SignedAngle(from, to, Vector3.forward);
 

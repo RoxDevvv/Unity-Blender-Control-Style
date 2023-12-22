@@ -49,14 +49,26 @@ public class ChangeMouseCursorInEditor
         if (ObjectAxis == Vector3.one || ObjectAxis == Vector3.zero)
             return;
 
-        Handles.color = WorldAxis switch
-        {
-            Vector3 right when right == Vector3.right => Color.red,
-            Vector3 up when up == Vector3.up => Color.green,
-            Vector3 forward when forward == Vector3.forward => Color.blue,
-            _ => Color.black,
-        };
+        Color lineColor;
 
+        if (WorldAxis == Vector3.right)
+        {
+            lineColor = Color.red;
+        }
+        else if (WorldAxis == Vector3.up)
+        {
+            lineColor = Color.green;
+        }
+        else if (WorldAxis == Vector3.forward)
+        {
+            lineColor = Color.blue;
+        }
+        else
+        {
+            lineColor = Color.black;
+        }
+
+        Handles.color = lineColor;
         Vector3 StartPoint = IntialObjectPosition - ObjectAxis * 1000f;
         Vector3 endPoint = IntialObjectPosition + ObjectAxis * 1000f;
 

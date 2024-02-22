@@ -8,15 +8,16 @@ public class BlenderMoveEditor : Editor
     private Vector3 selectedAxis;
 
     Vector3 initialOffset;
-
+    private string moveNumber = "";
     public void ObjectMove()
     {
         Event e = Event.current;
         Transform targetObj = (Transform)target;
-
+        
         if (e.type == EventType.KeyDown
         && e.keyCode == KeyCode.G
-        && CurrentTransformMode != TransformMode.Move)
+        && CurrentTransformMode != TransformMode.Move
+        && !BlenderHelper.RightMouseHeld)
         {
             // Record the initial state for undo
             Undo.RegisterCompleteObjectUndo((Transform)target, "Move Object");
@@ -31,11 +32,15 @@ public class BlenderMoveEditor : Editor
 
 
             ObjectAxis = Vector3.zero;
+            moveNumber = "";
         }
 
 
         if (CurrentTransformMode == TransformMode.Move)
         {
+
+            BlenderHelper.AppendUnitNumber(e, ref moveNumber);
+
             KeyCode AxisCode = BlenderHelper.AxisKeycode(e);
             if (AxisCode != KeyCode.None)
             {
@@ -52,17 +57,9 @@ public class BlenderMoveEditor : Editor
 
             SelectedObject = targetObj;
 
-            Vector3 currentMousePosition = GetWorldMouse();
-            if (ObjectAxis == Vector3.zero)
+            if (!MoveByUnit(targetObj))
             {
-                targetObj.position = currentMousePosition + initialOffset;
-            }
-            else
-            {
-                // Calculate the distance along the object axis
-                float distance = Vector3.Dot(ObjectAxis, currentMousePosition - initialPosition + initialOffset);
-                // Update the object's position
-                targetObj.position = initialPosition + (ObjectAxis * distance);
+                moveByMouse(targetObj);
             }
 
             if (BlenderHelper.CancelKeyPressed(e))
@@ -93,5 +90,31 @@ public class BlenderMoveEditor : Editor
 
         return sceneViewCamera.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, distance_to_screen));
     }
-
+    bool MoveByUnit(Transform target)
+    {
+        // Parse the move unit string
+        if (float.TryParse(moveNumber, out float MoveUnit))
+        {
+            Vector3 pos = MoveUnit * (ObjectAxis == Vector3.zero ? target.right : ObjectAxis);
+            // move based on the unit input
+            target.position = pos + initialPosition;
+            return true;
+        }
+        return false;
+    }
+    void moveByMouse(Transform target)
+    {
+        Vector3 currentMousePosition = GetWorldMouse();
+        if (ObjectAxis == Vector3.zero)
+        {
+            target.position = currentMousePosition + initialOffset;
+        }
+        else
+        {
+            // Calculate the distance along the object axis
+            float distance = Vector3.Dot(ObjectAxis, currentMousePosition - initialPosition + initialOffset);
+            // Update the object's position
+            target.position = initialPosition + (ObjectAxis * distance);
+        }
+    }
 }

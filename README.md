@@ -34,7 +34,7 @@ Install with UPM
 ```
 Select an object in the Unity Scene.
 Press the designated key ('G','S','R') to initiate the grab/transform mode.
-Move the mouse to manipulate the object.
+Move the mouse to manipulate the object. OR Type number and minus key if you wish to control the direction of rotation, scale, or movement.
 Release the key to confirm the transformation.
 Press right mouse to cancel changes
 ```
@@ -43,6 +43,11 @@ Press right mouse to cancel changes
 ## Preview
 
 ![caption](https://raw.githubusercontent.com/RoxDevvv/Unity-Blender-Control-Style/Alpha/Preview.gif)
+
+## Known Issue 
+Selecting gameobject from the hierarchy will not work 
+Workaround : after selecting gameobject from hierarchy press the tab of scene view.
+
 ## Support
 
 For support, email aminelaaraf@gmail.com.

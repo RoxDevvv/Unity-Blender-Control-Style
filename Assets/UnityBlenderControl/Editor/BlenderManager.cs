@@ -31,10 +31,12 @@ public class BlenderManager : Editor
             defaultEditor.OnInspectorGUI();
         }
     }
+
     public void OnSceneGUI()
     {
         if (!isBlenderPluginEnabled)
             return;
+        BlenderHelper.RightMouseHeldCheck();
         if (blenderMoveInstance != null)
         {
             blenderMoveInstance.ObjectMove();

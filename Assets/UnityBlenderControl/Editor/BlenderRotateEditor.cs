@@ -7,14 +7,15 @@ public class BlenderRotateEditor : Editor
     private Vector3 initialRotation;
     private Vector3 selectedAxis;
     private Vector2 mouseStartPosition;
-
+    private string RotationNumber = "";
     public void ObjectRotate()
     {
         Event e = Event.current;
 
         if (e.type == EventType.KeyDown
         && e.keyCode == KeyCode.R
-        && CurrentTransformMode != TransformMode.Rotate)
+        && CurrentTransformMode != TransformMode.Rotate
+        && !BlenderHelper.RightMouseHeld)
         {
             // Record the initial state for undo
             Undo.RegisterCompleteObjectUndo((Transform)target, "Rotate Object");
@@ -25,11 +26,15 @@ public class BlenderRotateEditor : Editor
             selectedAxis = Vector3.one;
 
             ObjectAxis = Vector3.one;
+            RotationNumber = "";
         }
 
 
         if (CurrentTransformMode == TransformMode.Rotate)
         {
+
+            BlenderHelper.AppendUnitNumber(e, ref RotationNumber);
+
             KeyCode AxisCode = BlenderHelper.AxisKeycode(e);
             if (AxisCode != KeyCode.None)
             {
@@ -39,24 +44,10 @@ public class BlenderRotateEditor : Editor
                 ObjectAxis = BlenderHelper.GetObjectAxis((Transform)target, selectedAxis);
                 WorldAxis = selectedAxis;
             }
-
-            // Calculate the center of the object in screen space
-            Vector3 objectCenter = HandleUtility.WorldToGUIPoint(((Transform)target).position);
-            SelectedObject = (Transform)target;
-            // Calculate the initial angle between the object center and the initial mouse position
-            float initialAngle = AngleBetweenVector2(objectCenter, mouseStartPosition);
-
-            // Calculate the current angle between the object center and the current mouse position
-            float currentAngle = AngleBetweenVector2(objectCenter, e.mousePosition);
-
-            // Calculate the rotation angle based on the difference between initial and current angles
-            float rotationAngle = currentAngle - initialAngle;
-
-            // Use a Quaternion to represent the rotation
-            Quaternion rotationDelta = Quaternion.AngleAxis(rotationAngle, ObjectAxis);
-
-            // Apply rotation to the object
-            ((Transform)target).localRotation = rotationDelta * Quaternion.Euler(initialRotation);
+            if (!RotateByAngle())
+            {
+                RotateByMouse(e);
+            }
 
             if (BlenderHelper.CancelKeyPressed(e))
             {
@@ -78,6 +69,38 @@ public class BlenderRotateEditor : Editor
         }
     }
 
+    void RotateByMouse(Event e)
+    {
+        // Calculate the center of the object in screen space
+        Vector3 objectCenter = HandleUtility.WorldToGUIPoint(((Transform)target).position);
+        SelectedObject = (Transform)target;
+        // Calculate the initial angle between the object center and the initial mouse position
+        float initialAngle = AngleBetweenVector2(objectCenter, mouseStartPosition);
+
+        // Calculate the current angle between the object center and the current mouse position
+        float currentAngle = AngleBetweenVector2(objectCenter, e.mousePosition);
+
+        // Calculate the rotation angle based on the difference between initial and current angles
+        float rotationAngle = currentAngle - initialAngle;
+
+        // Use a Quaternion to represent the rotation
+        Quaternion rotationDelta = Quaternion.AngleAxis(rotationAngle, ObjectAxis);
+
+        // Apply rotation to the object
+        ((Transform)target).localRotation = rotationDelta * Quaternion.Euler(initialRotation);
+    }
+    bool RotateByAngle()
+    {
+        // Parse the rotation angle string
+        if (float.TryParse(RotationNumber, out float angle))
+        {
+            // Rotate based on the angle input
+            Quaternion rotationDelta = Quaternion.AngleAxis(angle, ObjectAxis);
+            ((Transform)target).localRotation = rotationDelta * Quaternion.Euler(initialRotation);
+            return true;
+        }
+        return false;
+    }
     // Function to calculate the angle between two Vector2 points
     float AngleBetweenVector2(Vector3 vec1, Vector3 vec2)
     {

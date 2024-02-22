@@ -7,14 +7,15 @@ public class BlenderScaleEditor : Editor
     private Vector3 initialScale;
     private Vector3 selectedAxis;
     private Vector2 mouseStartPosition;
-
+    private string ScaleNumber = "";
     public void ObjectScale()
     {
         Event e = Event.current;
 
         if (e.type == EventType.KeyDown
         && e.keyCode == KeyCode.S
-        && CurrentTransformMode != TransformMode.Scale)
+        && CurrentTransformMode != TransformMode.Scale
+        && !BlenderHelper.RightMouseHeld)
         {
             // Record the initial state for undo
             Undo.RegisterCompleteObjectUndo((Transform)target, "Scale Object");
@@ -25,11 +26,15 @@ public class BlenderScaleEditor : Editor
             selectedAxis = Vector3.one;
 
             ObjectAxis = Vector3.zero;
+            ScaleNumber = "";
         }
 
 
         if (CurrentTransformMode == TransformMode.Scale)
         {
+
+            BlenderHelper.AppendUnitNumber(e, ref ScaleNumber);
+
             KeyCode AxisCode = BlenderHelper.AxisKeycode(e);
             if (AxisCode != KeyCode.None)
             {
@@ -39,26 +44,10 @@ public class BlenderScaleEditor : Editor
 
             ObjectAxis = BlenderHelper.GetObjectAxis((Transform)target, selectedAxis);
             WorldAxis = selectedAxis;
-
-            // Calculate the center of the object in screen space
-            Vector3 objectCenter = HandleUtility.WorldToGUIPoint(((Transform)target).position);
-            SelectedObject = (Transform)target;
-            // Calculate the initial distance between the object center and the initial mouse position
-            float initialLineLength = Vector2.Distance(objectCenter, mouseStartPosition);
-
-            // Calculate the current distance between the object center and the current mouse position
-            float currentLineLength = Vector2.Distance(objectCenter, e.mousePosition);
-
-            // Calculate the scale factor based on the ratio of initial and current line lengths
-            float scaleFactor = 1f + (currentLineLength - initialLineLength) * 0.01f;
-
-            // Apply scale to the object
-            //((Transform)target).localScale = initialScale * Mathf.Clamp(scaleFactor, 0.1f, 10f);
-            ((Transform)target).localScale = new Vector3(
-                initialScale.x * ModifyScaleVector(scaleFactor, selectedAxis).x,
-                initialScale.y * ModifyScaleVector(scaleFactor, selectedAxis).y,
-                initialScale.z * ModifyScaleVector(scaleFactor, selectedAxis).z
-            );
+            if (!ScaleByUnit())
+            {
+                ScaleByMouse(e);
+            }
 
             if (BlenderHelper.CancelKeyPressed(e))
             {
@@ -86,5 +75,34 @@ public class BlenderScaleEditor : Editor
             axis.y == 0 ? 1f : scaleFactor,
             axis.z == 0 ? 1f : scaleFactor
         );
+    }
+    bool ScaleByUnit()
+    {
+        // Parse the move unit string
+        if (float.TryParse(ScaleNumber, out float scaleUnit))
+        {
+            Vector3 scale = ModifyScaleVector(scaleUnit, selectedAxis);
+            ((Transform)target).localScale = Vector3.Scale(scale, initialScale);
+            return true;
+        }
+        return false;
+    }
+    void ScaleByMouse(Event e)
+    {
+        // Calculate the center of the object in screen space
+        Vector3 objectCenter = HandleUtility.WorldToGUIPoint(((Transform)target).position);
+        SelectedObject = (Transform)target;
+        // Calculate the initial distance between the object center and the initial mouse position
+        float initialLineLength = Vector2.Distance(objectCenter, mouseStartPosition);
+
+        // Calculate the current distance between the object center and the current mouse position
+        float currentLineLength = Vector2.Distance(objectCenter, e.mousePosition);
+
+        // Calculate the scale factor based on the ratio of initial and current line lengths
+        float scaleFactor = 1f + (currentLineLength - initialLineLength) * 0.01f;
+
+        // Apply scale to the object
+        Vector3 scale = ModifyScaleVector(scaleFactor, selectedAxis);
+        ((Transform)target).localScale = Vector3.Scale(scale, initialScale); ;
     }
 }

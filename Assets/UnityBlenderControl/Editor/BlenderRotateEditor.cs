@@ -71,6 +71,7 @@ public class BlenderRotateEditor : Editor
 
     void RotateByMouse(Event e)
     {
+        float snapValue = BlenderHelper.GetSnapRotate();
         // Calculate the center of the object in screen space
         Vector3 objectCenter = HandleUtility.WorldToGUIPoint(((Transform)target).position);
         SelectedObject = (Transform)target;
@@ -83,9 +84,13 @@ public class BlenderRotateEditor : Editor
         // Calculate the rotation angle based on the difference between initial and current angles
         float rotationAngle = currentAngle - initialAngle;
 
+        // calculate snap rotation
+        float SnapRotation = Mathf.Round(rotationAngle / snapValue) * snapValue;
+        
         // Use a Quaternion to represent the rotation
-        Quaternion rotationDelta = Quaternion.AngleAxis(rotationAngle, ObjectAxis);
+        float Angle = isSnappingEnabled ? SnapRotation : rotationAngle;
 
+        Quaternion rotationDelta = Quaternion.AngleAxis(Angle, ObjectAxis);
         // Apply rotation to the object
         ((Transform)target).localRotation = rotationDelta * Quaternion.Euler(initialRotation);
     }

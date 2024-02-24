@@ -9,11 +9,12 @@ public class BlenderMoveEditor : Editor
 
     Vector3 initialOffset;
     private string moveNumber = "";
+    private Vector3 initialMouse;
     public void ObjectMove()
     {
         Event e = Event.current;
         Transform targetObj = (Transform)target;
-        
+
         if (e.type == EventType.KeyDown
         && e.keyCode == KeyCode.G
         && CurrentTransformMode != TransformMode.Move
@@ -28,8 +29,8 @@ public class BlenderMoveEditor : Editor
             selectedAxis = Vector3.one;
 
             // Calculate the initial offset
-            initialOffset = targetObj.position - GetWorldMouse();
-
+            initialOffset = targetObj.position - GetWorldMouse(((Transform)target).position);
+            initialMouse = GetWorldMouse(((Transform)target).position);
 
             ObjectAxis = Vector3.zero;
             moveNumber = "";
@@ -46,7 +47,7 @@ public class BlenderMoveEditor : Editor
             {
                 selectedAxis = BlenderHelper.GetAxisVector(AxisCode);
                 targetObj.position = initialPosition;
-                initialOffset = initialPosition - GetWorldMouse();
+                initialOffset = initialPosition - GetWorldMouse(((Transform)target).position);
                 IntialObjectPosition = initialPosition;
 
 
@@ -80,10 +81,10 @@ public class BlenderMoveEditor : Editor
         }
     }
 
-    Vector3 GetWorldMouse()
+    Vector3 GetWorldMouse(Vector3 pos)
     {
         Camera sceneViewCamera = SceneView.lastActiveSceneView.camera;
-        float distance_to_screen = sceneViewCamera.WorldToScreenPoint(((Transform)target).position).z;
+        float distance_to_screen = sceneViewCamera.WorldToScreenPoint(pos).z;
         // Invert the Y-axis
         Vector3 mousePosition = Event.current.mousePosition;
         mousePosition.y = sceneViewCamera.pixelHeight - mousePosition.y;
@@ -102,19 +103,55 @@ public class BlenderMoveEditor : Editor
         }
         return false;
     }
+    //BlenderHelper.GetSnapMove()
     void moveByMouse(Transform target)
     {
-        Vector3 currentMousePosition = GetWorldMouse();
+        Vector3 currentMousePosition = GetWorldMouse(initialPosition);
+        Vector3 snapValue = BlenderHelper.GetSnapMove();
         if (ObjectAxis == Vector3.zero)
         {
-            target.position = currentMousePosition + initialOffset;
+            if (isSnappingEnabled)
+            {
+                Vector3 direction = currentMousePosition + initialOffset - initialPosition;
+                target.position = initialPosition + SnapPosition(direction, snapValue);
+            }
+            else
+            {
+                target.position = currentMousePosition + initialOffset;
+            }
         }
         else
         {
             // Calculate the distance along the object axis
             float distance = Vector3.Dot(ObjectAxis, currentMousePosition - initialPosition + initialOffset);
-            // Update the object's position
-            target.position = initialPosition + (ObjectAxis * distance);
+
+            if (isSnappingEnabled)
+            {
+                // Snap the distance based on snapValue
+                float snappedDistance = Mathf.Round(distance / snapValue.magnitude) * snapValue.magnitude;
+                // Update the object's position
+                target.position = initialPosition + (ObjectAxis * snappedDistance);
+            }
+            else
+            {
+                // Calculate the direction from initial to current position
+                Vector3 direction = initialMouse - currentMousePosition;
+
+                //Debug.DrawLine(initialMouse, currentMousePosition);
+
+                // Update the target position
+                target.position = initialPosition + (distance* direction.magnitude * ObjectAxis);
+            }
+
         }
+    }
+    Vector3 SnapPosition(Vector3 position, Vector3 snapValue)
+    {
+        // Snap position to grid based on snapValue
+        Vector3 snappedPosition;
+        snappedPosition.x = Mathf.Round(position.x / snapValue.x) * snapValue.x;
+        snappedPosition.y = Mathf.Round(position.y / snapValue.y) * snapValue.y;
+        snappedPosition.z = Mathf.Round(position.z / snapValue.z) * snapValue.z;
+        return snappedPosition;
     }
 }

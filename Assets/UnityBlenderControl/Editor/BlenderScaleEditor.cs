@@ -89,6 +89,7 @@ public class BlenderScaleEditor : Editor
     }
     void ScaleByMouse(Event e)
     {
+        float snapValue = BlenderHelper.GetSnapScale();
         // Calculate the center of the object in screen space
         Vector3 objectCenter = HandleUtility.WorldToGUIPoint(((Transform)target).position);
         SelectedObject = (Transform)target;
@@ -100,9 +101,13 @@ public class BlenderScaleEditor : Editor
 
         // Calculate the scale factor based on the ratio of initial and current line lengths
         float scaleFactor = 1f + (currentLineLength - initialLineLength) * 0.01f;
-
+        // calculate snap scale
+        float SnapScale = Mathf.Round(scaleFactor / snapValue) * snapValue;
+        SnapScale = SnapScale == 0 ? 1f : SnapScale;
+        
+        float DesiredScale = isSnappingEnabled ? SnapScale : scaleFactor;
         // Apply scale to the object
-        Vector3 scale = ModifyScaleVector(scaleFactor, selectedAxis);
+        Vector3 scale = ModifyScaleVector(DesiredScale, selectedAxis);
         ((Transform)target).localScale = Vector3.Scale(scale, initialScale); ;
     }
 }

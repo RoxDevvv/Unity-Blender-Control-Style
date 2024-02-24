@@ -1,8 +1,37 @@
 
+// using System;
+// using System.Reflection;
 using UnityEngine;
 
 public static class BlenderHelper
 {
+    // not needed
+    // private static Assembly EditorSnapSettingsAssembly;
+    // private static Type EditorSnapSettings;
+    // private static PropertyInfo scale, move, rotate;
+
+    // public static void InitEditorSnapSettings()
+    // {
+    //     EditorSnapSettingsAssembly = Assembly.Load("UnityEditor.dll");
+    //     EditorSnapSettings = EditorSnapSettingsAssembly.GetType("UnityEditor.EditorSnapSettings");
+    //     scale = EditorSnapSettings.GetProperty("scale");
+    //     move = EditorSnapSettings.GetProperty("move");
+    //     rotate = EditorSnapSettings.GetProperty("rotate");
+    // }
+
+    public static float GetSnapScale()
+    {
+        return UnityEditor.EditorSnapSettings.scale;
+
+    }
+    public static Vector3 GetSnapMove()
+    {
+        return UnityEditor.EditorSnapSettings.move;
+    }
+    public static float GetSnapRotate()
+    {
+        return UnityEditor.EditorSnapSettings.rotate;
+    }
     public static Vector3 GetObjectAxis(Transform target, Vector3 VectorAxis)
     {
         if (VectorAxis == Vector3.right)
@@ -22,6 +51,7 @@ public static class BlenderHelper
             return Vector3.zero;
         }
     }
+ 
     public static Vector3 GetAxisVector(KeyCode keyCode)
     {
         if (keyCode == KeyCode.X)
@@ -52,6 +82,20 @@ public static class BlenderHelper
         else if (e.type == EventType.MouseUp && e.button == 1) // Right mouse button released
         {
             RightMouseHeld = false;
+        }
+    }
+    public static void CheckSnap()
+    {
+        Event e = Event.current;
+        if (e.type == EventType.KeyDown
+        && (e.keyCode == KeyCode.LeftControl || e.keyCode == KeyCode.RightControl))
+        {
+            TransformModeManager.isSnappingEnabled = true;
+        }
+        else if (e.type == EventType.KeyUp
+        && e.keyCode == KeyCode.LeftControl || e.keyCode == KeyCode.RightControl)
+        {
+            TransformModeManager.isSnappingEnabled = false;
         }
     }
     public static bool CancelKeyPressed(Event e)

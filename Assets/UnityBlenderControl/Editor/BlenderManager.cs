@@ -20,7 +20,7 @@ public class BlenderManager : Editor
         Type transformInspectorType = Type.GetType("UnityEditor.TransformInspector, UnityEditor");
         if (transformInspectorType != null)
         {
-            defaultEditor = Editor.CreateEditor(targets, transformInspectorType);
+            defaultEditor = CreateEditor(targets, transformInspectorType);
         }
     }
     public override void OnInspectorGUI()
@@ -36,7 +36,10 @@ public class BlenderManager : Editor
     {
         if (!isBlenderPluginEnabled)
             return;
+
         BlenderHelper.RightMouseHeldCheck();
+        BlenderHelper.CheckSnap();
+        
         if (blenderMoveInstance != null)
         {
             blenderMoveInstance.ObjectMove();

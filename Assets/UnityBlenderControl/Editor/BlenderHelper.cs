@@ -100,18 +100,31 @@ public static class BlenderHelper
     }
     public static bool CancelKeyPressed(Event e)
     {
-        return e.type == EventType.KeyDown && (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter)
-       || (e.type == EventType.MouseDown && e.button == 0);
+        bool cancel = e.type == EventType.KeyDown && (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter)
+            || (e.type == EventType.MouseDown && e.button == 0);
+        if (cancel) 
+        {
+            e.Use();
+        }
+        return cancel;
     }
     public static bool RevertKeyPressed(Event e)
     {
-        return e.type == EventType.MouseDown && e.button == 1;
+        bool revert = (e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape)
+            || (e.type == EventType.MouseDown && e.button == 1);
+        if (revert) 
+        {
+            e.Use();
+        }
+        return revert;
     }
 
     public static KeyCode AxisKeycode(Event e)
     {
-        if (e.type == EventType.KeyDown && (e.keyCode == KeyCode.X || e.keyCode == KeyCode.Y || e.keyCode == KeyCode.Z))
+        if (e.type == EventType.KeyDown && (e.keyCode == KeyCode.X || e.keyCode == KeyCode.Y || e.keyCode == KeyCode.Z)) {
+            e.Use();
             return e.keyCode;
+        }
         return KeyCode.None;
     }
     public static void AppendUnitNumber(Event e, ref string UnitNumber)

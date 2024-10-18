@@ -121,8 +121,10 @@ public static class BlenderHelper
 
     public static KeyCode AxisKeycode(Event e)
     {
-        if (e.type == EventType.KeyDown && (e.keyCode == KeyCode.X || e.keyCode == KeyCode.Y || e.keyCode == KeyCode.Z))
+        if (e.type == EventType.KeyDown && (e.keyCode == KeyCode.X || e.keyCode == KeyCode.Y || e.keyCode == KeyCode.Z)) {
+            e.Use();
             return e.keyCode;
+        }
         return KeyCode.None;
     }
     public static void AppendUnitNumber(Event e, ref string UnitNumber)

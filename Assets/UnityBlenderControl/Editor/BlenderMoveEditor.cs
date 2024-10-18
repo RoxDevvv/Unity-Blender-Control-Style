@@ -50,8 +50,9 @@ public class BlenderMoveEditor : Editor
                 initialOffset = initialPosition - GetWorldMouse(((Transform)target).position);
                 IntialObjectPosition = initialPosition;
 
-
-                ObjectAxis = BlenderHelper.GetObjectAxis(targetObj, selectedAxis);
+                ObjectAxis = Tools.pivotRotation == PivotRotation.Local
+                    ? BlenderHelper.GetObjectAxis((Transform)target, selectedAxis)
+                    :  selectedAxis;
                 WorldAxis = selectedAxis;
             }
 

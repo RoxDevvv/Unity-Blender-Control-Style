@@ -21,7 +21,7 @@ public class BlenderRotateEditor : Editor
             Undo.RegisterCompleteObjectUndo((Transform)target, "Rotate Object");
             // Activate scale mode when "R" key is pressed
             CurrentTransformMode = TransformMode.Rotate;
-            initialRotation = ((Transform)target).localEulerAngles;
+            initialRotation = ((Transform)target).eulerAngles;
             mouseStartPosition = e.mousePosition;
             selectedAxis = Vector3.one;
 
@@ -40,8 +40,10 @@ public class BlenderRotateEditor : Editor
             {
                 selectedAxis = BlenderHelper.GetAxisVector(AxisCode);
                 IntialObjectPosition = ((Transform)target).position;
-                ((Transform)target).localRotation = Quaternion.Euler(initialRotation);
-                ObjectAxis = BlenderHelper.GetObjectAxis((Transform)target, selectedAxis);
+                ((Transform)target).rotation = Quaternion.Euler(initialRotation);
+                ObjectAxis = Tools.pivotRotation == PivotRotation.Local
+                    ? BlenderHelper.GetObjectAxis((Transform)target, selectedAxis)
+                    :  selectedAxis;
                 WorldAxis = selectedAxis;
             }
             if (!RotateByAngle())
@@ -59,7 +61,7 @@ public class BlenderRotateEditor : Editor
             if (BlenderHelper.RevertKeyPressed(e))
             {
                 // Revert changes and deactivate scale mode on right mouse button
-                ((Transform)target).localRotation = Quaternion.Euler(initialRotation);
+                ((Transform)target).rotation = Quaternion.Euler(initialRotation);
 
                 CurrentTransformMode = TransformMode.None;
             }
@@ -92,7 +94,7 @@ public class BlenderRotateEditor : Editor
 
         Quaternion rotationDelta = Quaternion.AngleAxis(Angle, ObjectAxis);
         // Apply rotation to the object
-        ((Transform)target).localRotation = rotationDelta * Quaternion.Euler(initialRotation);
+        ((Transform)target).rotation = rotationDelta * Quaternion.Euler(initialRotation);
     }
     bool RotateByAngle()
     {

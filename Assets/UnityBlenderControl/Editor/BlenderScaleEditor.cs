@@ -8,12 +8,14 @@ public class BlenderScaleEditor : Editor
     private Vector3 selectedAxis;
     private Vector2 mouseStartPosition;
     private string ScaleNumber = "";
+    private bool scaleNumberIsPositive = true;
     public void ObjectScale()
     {
         Event e = Event.current;
 
         if (e.type == EventType.KeyDown
         && e.keyCode == KeyCode.S
+        && !BlenderHelper.IsModifierPressed(e)
         && CurrentTransformMode != TransformMode.Scale
         && !BlenderHelper.RightMouseHeld)
         {
@@ -27,13 +29,14 @@ public class BlenderScaleEditor : Editor
 
             ObjectAxis = Vector3.zero;
             ScaleNumber = "";
+            scaleNumberIsPositive = true;
         }
 
 
         if (CurrentTransformMode == TransformMode.Scale)
         {
 
-            BlenderHelper.AppendUnitNumber(e, ref ScaleNumber);
+            BlenderHelper.AppendUnitNumber(e, ref ScaleNumber, ref scaleNumberIsPositive);
 
             KeyCode AxisCode = BlenderHelper.AxisKeycode(e);
             if (AxisCode != KeyCode.None)
@@ -79,7 +82,7 @@ public class BlenderScaleEditor : Editor
     bool ScaleByUnit()
     {
         // Parse the move unit string
-        if (float.TryParse(ScaleNumber, out float scaleUnit))
+        if (BlenderHelper.TryParseUnitNumber(ScaleNumber, scaleNumberIsPositive, out float scaleUnit))
         {
             Vector3 scale = ModifyScaleVector(scaleUnit, selectedAxis);
             ((Transform)target).localScale = Vector3.Scale(scale, initialScale);

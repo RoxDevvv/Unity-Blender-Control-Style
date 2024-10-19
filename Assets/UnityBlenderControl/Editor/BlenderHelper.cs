@@ -1,6 +1,7 @@
 
 // using System;
 // using System.Reflection;
+using System.Globalization;
 using UnityEngine;
 
 public static class BlenderHelper
@@ -127,30 +128,53 @@ public static class BlenderHelper
         }
         return KeyCode.None;
     }
-    public static void AppendUnitNumber(Event e, ref string UnitNumber)
+    public static void AppendUnitNumber(Event e, ref string unitNumber, ref bool isPositive)
     {
-        char input = e.character;
-        if (e.isKey && char.IsDigit(input) || input == '-')
+        if (!(e.type == EventType.KeyDown && e.isKey))
         {
-            if (UnitNumber == "")
+            return;
+        }
+
+        char input = e.character;
+        if (input == '-')
+        {
+            isPositive = !isPositive;
+        }
+        else if (char.IsDigit(input))
+        {
+            unitNumber += input;
+        }
+        else if (input == '.')
+        {
+            if (!unitNumber.Contains('.'))
             {
-                // If the input string is empty, prepend the character with a sign
-                UnitNumber = '+' + input.ToString();
-            }
-            else if (input == '+' || input == '-')
-            {
-                // If a new sign is entered, get the previous sign and multiply it with the new sign
-                int previousSign = UnitNumber[0] == '-' ? -1 : 1;
-                int newSign = input == '-' ? -1 : 1;
-                int resultSign = previousSign * newSign;
-                // Replace the existing sign with the result
-                UnitNumber = (resultSign == 1 ? "+" : "-") + UnitNumber.Substring(1);
-            }
-            else
-            {
-                // Otherwise, append the character
-                UnitNumber += input;
+                unitNumber += input;
             }
         }
+        else if (e.keyCode == KeyCode.Backspace)
+        {
+            if (unitNumber.Length != 0)
+            {
+                unitNumber = unitNumber.Substring(0, unitNumber.Length-1);
+            }
+        }
+    }
+
+    public static bool TryParseUnitNumber(string unitNumber, bool isPositive, out float parsedNumber)
+    {
+        // The CultureInfo must be specified to ensure that '.' is being used as the decimal point.
+        if (float.TryParse(unitNumber, NumberStyles.Float, new CultureInfo("en-US"), out parsedNumber))
+        {
+            if (!isPositive)
+            {
+                parsedNumber = - parsedNumber;
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    public static bool IsModifierPressed(Event e) {
+        return e.control || e.alt || e.shift;
     }
 }

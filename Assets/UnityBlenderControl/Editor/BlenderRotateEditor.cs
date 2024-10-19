@@ -8,12 +8,14 @@ public class BlenderRotateEditor : Editor
     private Vector3 selectedAxis;
     private Vector2 mouseStartPosition;
     private string RotationNumber = "";
+    private bool rotationNumberIsPositive = true;
     public void ObjectRotate()
     {
         Event e = Event.current;
 
         if (e.type == EventType.KeyDown
         && e.keyCode == KeyCode.R
+        && !BlenderHelper.IsModifierPressed(e)
         && CurrentTransformMode != TransformMode.Rotate
         && !BlenderHelper.RightMouseHeld)
         {
@@ -27,13 +29,14 @@ public class BlenderRotateEditor : Editor
 
             ObjectAxis = Vector3.one;
             RotationNumber = "";
+            rotationNumberIsPositive = true;
         }
 
 
         if (CurrentTransformMode == TransformMode.Rotate)
         {
 
-            BlenderHelper.AppendUnitNumber(e, ref RotationNumber);
+            BlenderHelper.AppendUnitNumber(e, ref RotationNumber, ref rotationNumberIsPositive);
 
             KeyCode AxisCode = BlenderHelper.AxisKeycode(e);
             if (AxisCode != KeyCode.None)
@@ -99,11 +102,11 @@ public class BlenderRotateEditor : Editor
     bool RotateByAngle()
     {
         // Parse the rotation angle string
-        if (float.TryParse(RotationNumber, out float angle))
+        if (BlenderHelper.TryParseUnitNumber(RotationNumber, rotationNumberIsPositive, out float angle))
         {
             // Rotate based on the angle input
             Quaternion rotationDelta = Quaternion.AngleAxis(angle, ObjectAxis);
-            ((Transform)target).localRotation = rotationDelta * Quaternion.Euler(initialRotation);
+            ((Transform)target).rotation = rotationDelta * Quaternion.Euler(initialRotation);
             return true;
         }
         return false;

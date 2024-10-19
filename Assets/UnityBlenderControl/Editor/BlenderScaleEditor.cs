@@ -15,6 +15,7 @@ public class BlenderScaleEditor : Editor
 
         if (e.type == EventType.KeyDown
         && e.keyCode == KeyCode.S
+        && !BlenderHelper.IsModifierPressed(e)
         && CurrentTransformMode != TransformMode.Scale
         && !BlenderHelper.RightMouseHeld)
         {
@@ -28,6 +29,7 @@ public class BlenderScaleEditor : Editor
 
             ObjectAxis = Vector3.zero;
             ScaleNumber = "";
+            scaleNumberIsPositive = true;
         }
 
 

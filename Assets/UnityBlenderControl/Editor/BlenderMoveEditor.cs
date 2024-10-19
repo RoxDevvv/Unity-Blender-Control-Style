@@ -18,6 +18,7 @@ public class BlenderMoveEditor : Editor
 
         if (e.type == EventType.KeyDown
         && e.keyCode == KeyCode.G
+        && !BlenderHelper.IsModifierPressed(e)
         && CurrentTransformMode != TransformMode.Move
         && !BlenderHelper.RightMouseHeld)
         {
@@ -35,6 +36,7 @@ public class BlenderMoveEditor : Editor
 
             ObjectAxis = Vector3.zero;
             moveNumber = "";
+            moveNumberIsPositive = true;
         }
 
 

@@ -173,4 +173,8 @@ public static class BlenderHelper
         }
         return false;
     }
+    
+    public static bool IsModifierPressed(Event e) {
+        return e.control || e.alt || e.shift;
+    }
 }

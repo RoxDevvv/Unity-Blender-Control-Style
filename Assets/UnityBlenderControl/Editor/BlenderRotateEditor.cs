@@ -15,6 +15,7 @@ public class BlenderRotateEditor : Editor
 
         if (e.type == EventType.KeyDown
         && e.keyCode == KeyCode.R
+        && !BlenderHelper.IsModifierPressed(e)
         && CurrentTransformMode != TransformMode.Rotate
         && !BlenderHelper.RightMouseHeld)
         {
@@ -28,6 +29,7 @@ public class BlenderRotateEditor : Editor
 
             ObjectAxis = Vector3.one;
             RotationNumber = "";
+            rotationNumberIsPositive = true;
         }
 
 
@@ -104,7 +106,7 @@ public class BlenderRotateEditor : Editor
         {
             // Rotate based on the angle input
             Quaternion rotationDelta = Quaternion.AngleAxis(angle, ObjectAxis);
-            ((Transform)target).localRotation = rotationDelta * Quaternion.Euler(initialRotation);
+            ((Transform)target).rotation = rotationDelta * Quaternion.Euler(initialRotation);
             return true;
         }
         return false;

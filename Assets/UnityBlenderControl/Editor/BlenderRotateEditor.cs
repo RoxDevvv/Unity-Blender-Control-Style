@@ -8,6 +8,7 @@ public class BlenderRotateEditor : Editor
     private Vector3 selectedAxis;
     private Vector2 mouseStartPosition;
     private string RotationNumber = "";
+    private bool rotationNumberIsPositive = true;
     public void ObjectRotate()
     {
         Event e = Event.current;
@@ -33,7 +34,7 @@ public class BlenderRotateEditor : Editor
         if (CurrentTransformMode == TransformMode.Rotate)
         {
 
-            BlenderHelper.AppendUnitNumber(e, ref RotationNumber);
+            BlenderHelper.AppendUnitNumber(e, ref RotationNumber, ref rotationNumberIsPositive);
 
             KeyCode AxisCode = BlenderHelper.AxisKeycode(e);
             if (AxisCode != KeyCode.None)
@@ -99,7 +100,7 @@ public class BlenderRotateEditor : Editor
     bool RotateByAngle()
     {
         // Parse the rotation angle string
-        if (float.TryParse(RotationNumber, out float angle))
+        if (BlenderHelper.TryParseUnitNumber(RotationNumber, rotationNumberIsPositive, out float angle))
         {
             // Rotate based on the angle input
             Quaternion rotationDelta = Quaternion.AngleAxis(angle, ObjectAxis);

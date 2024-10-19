@@ -9,6 +9,7 @@ public class BlenderMoveEditor : Editor
 
     Vector3 initialOffset;
     private string moveNumber = "";
+    private bool moveNumberIsPositive = true;
     private Vector3 initialMouse;
     public void ObjectMove()
     {
@@ -40,7 +41,7 @@ public class BlenderMoveEditor : Editor
         if (CurrentTransformMode == TransformMode.Move)
         {
 
-            BlenderHelper.AppendUnitNumber(e, ref moveNumber);
+            BlenderHelper.AppendUnitNumber(e, ref moveNumber, ref moveNumberIsPositive);
 
             KeyCode AxisCode = BlenderHelper.AxisKeycode(e);
             if (AxisCode != KeyCode.None)
@@ -95,7 +96,7 @@ public class BlenderMoveEditor : Editor
     bool MoveByUnit(Transform target)
     {
         // Parse the move unit string
-        if (float.TryParse(moveNumber, out float MoveUnit))
+        if (BlenderHelper.TryParseUnitNumber(moveNumber, moveNumberIsPositive, out float MoveUnit))
         {
             Vector3 pos = MoveUnit * (ObjectAxis == Vector3.zero ? target.right : ObjectAxis);
             // move based on the unit input

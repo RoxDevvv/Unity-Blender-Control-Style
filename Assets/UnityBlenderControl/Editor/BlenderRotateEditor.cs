@@ -84,7 +84,7 @@ public class BlenderRotateEditor : Editor
         float initialAngle = AngleBetweenVector2(objectCenter, mouseStartPosition);
 
         // Calculate the current angle between the object center and the current mouse position
-        float currentAngle = AngleBetweenVector2(objectCenter, e.mousePosition);
+        float currentAngle = -AngleBetweenVector2(objectCenter, e.mousePosition);
 
         // Calculate the rotation angle based on the difference between initial and current angles
         float rotationAngle = currentAngle - initialAngle;

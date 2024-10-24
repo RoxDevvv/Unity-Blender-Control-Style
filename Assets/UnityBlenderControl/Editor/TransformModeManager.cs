@@ -7,7 +7,7 @@ public static class TransformModeManager
 {
     static TransformModeManager() {
         // load settings on startup / domain reload
-        LoadSettings()
+        LoadSettings();
     }
     
     internal static void LoadSettings() {
@@ -18,8 +18,8 @@ public static class TransformModeManager
     
     internal static void SaveSettings()
     {
-        EditorPrefs.SetBool("BlenderPluginEnabled", isBlenderPluginEnabled);
-        EditorPrefs.SetBool("BlenderPluginSwapYAndZ", swapYAndZ);
+        EditorPrefs.SetBool("BlenderControlPluginEnabled", isBlenderPluginEnabled);
+        EditorPrefs.SetBool("BlenderControlPluginSwapYAndZ", swapYAndZ);
     }
     
     public enum TransformMode

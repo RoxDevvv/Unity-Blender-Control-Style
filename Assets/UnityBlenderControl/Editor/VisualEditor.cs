@@ -57,11 +57,11 @@ public class ChangeMouseCursorInEditor
         }
         else if (WorldAxis == Vector3.up)
         {
-            lineColor = Color.green;
+            lineColor = swapYAndZ ? Color.blue : Color.green;
         }
         else if (WorldAxis == Vector3.forward)
         {
-            lineColor = Color.blue;
+            lineColor = swapYAndZ ? Color.green : Color.blue;
         }
         else
         {

@@ -1,10 +1,9 @@
 using UnityEditor;
 using UnityEngine;
 using static TransformModeManager;
+
 public class PluginControlWindow : EditorWindow
 {
-
-
     [MenuItem("Blender/Blender Control Window")]
     public static void ShowWindow()
     {
@@ -13,34 +12,20 @@ public class PluginControlWindow : EditorWindow
     private void OnEnable()
     {
         // Load the saved setting when the window is enabled
-        isBlenderPluginEnabled = EditorPrefs.GetBool("IsPluginEnabled", true);
+        LoadSettings();
     }
     private void OnGUI()
     {
         GUILayout.Label("Blender Plugin Control", EditorStyles.boldLabel);
+        
+        EditorGUI.BeginChangeCheck();
 
         isBlenderPluginEnabled = EditorGUILayout.Toggle("Enable Plugin", isBlenderPluginEnabled);
+        swapYAndZ = EditorGUILayout.Toggle("Swap Y and Z", swapYAndZ);
 
-        if (GUILayout.Button("Apply"))
-        {
-            ApplySettings();
-        }
-    }
-
-    private void ApplySettings()
-    {
-        // Save the setting
-        EditorPrefs.SetBool("IsPluginEnabled", isBlenderPluginEnabled);
-        // Implement logic to enable or disable your plugin based on the 'isPluginEnabled' variable.
-        if (isBlenderPluginEnabled)
-        {
-            Debug.Log("Plugin Enabled");
-            // Enable your plugin
-        }
-        else
-        {
-            Debug.Log("Plugin Disabled");
-            // Disable your plugin
+        if (EditorGUI.EndChangeCheck()) {
+            // save settings if one of them was changed
+            SaveSettings();
         }
     }
 }

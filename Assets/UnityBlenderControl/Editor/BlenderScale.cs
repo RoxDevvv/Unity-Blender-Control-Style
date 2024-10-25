@@ -100,16 +100,6 @@ public class BlenderScale : BlenderTransformMode
         }
     }
 
-    Vector3 GetWorldMouse(Vector3 pos) {
-        Camera sceneViewCamera = SceneView.lastActiveSceneView.camera;
-        float distance_to_screen = sceneViewCamera.WorldToScreenPoint(pos).z;
-        // Invert the Y-axis
-        Vector3 mousePosition = Event.current.mousePosition;
-        mousePosition.y = sceneViewCamera.pixelHeight - mousePosition.y;
-
-        return sceneViewCamera.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, distance_to_screen));
-    }
-
     Vector3 ModifyScaleVector(float scaleFactor) {
         var axis = BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Unlocked
             ? Vector3.one

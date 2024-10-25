@@ -78,6 +78,9 @@ public class BlenderRotate : BlenderTransformMode
     }
 
     public override void DrawSceneGUI(SceneView sceneView) {
+        // change mouse icon
+        EditorGUIUtility.AddCursorRect(new Rect(0, 0, Screen.width, Screen.height), MouseCursor.ResizeUpRight);
+        
         if (BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Unlocked) {
             return;
         }

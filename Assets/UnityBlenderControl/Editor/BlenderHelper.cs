@@ -70,6 +70,25 @@ public static class BlenderHelper
             };
         }
     }
+
+    public static Color GetAxisColor(KeyCode keyCode) {
+        if (TransformModeManager.swapYAndZ) {
+            return keyCode switch {
+                KeyCode.X => Color.red,
+                KeyCode.Y => Color.blue,
+                KeyCode.Z => Color.green,
+                _ => Color.white
+            }; 
+        } else {
+            return keyCode switch {
+                KeyCode.X => Color.red,
+                KeyCode.Y => Color.green,
+                KeyCode.Z => Color.blue,
+                _ => Color.white
+            };
+        }
+    }
+    
     public static bool RightMouseHeld = false;
     public static void RightMouseHeldCheck()
     {
@@ -97,7 +116,7 @@ public static class BlenderHelper
             TransformModeManager.isSnappingEnabled = false;
         }
     }
-    public static bool CancelKeyPressed(Event e)
+    public static bool ApplyKeyPressed(Event e)
     {
         bool cancel = e.type == EventType.KeyDown && (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter)
             || (e.type == EventType.MouseDown && e.button == 0);

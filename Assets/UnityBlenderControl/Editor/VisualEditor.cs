@@ -9,14 +9,6 @@ public class ChangeMouseCursorInEditor
     static ChangeMouseCursorInEditor()
     {
         SceneView.duringSceneGui += OnSceneGUI;
-        DrawAxis += CreateAxis;
-    }
-    private static void CreateAxis()
-    {
-        if (SelectedObject != null)
-        {
-            DrawAxisLine();
-        }
     }
     static void OnSceneGUI(SceneView sceneView)
     {
@@ -44,6 +36,7 @@ public class ChangeMouseCursorInEditor
 
         Handles.EndGUI();
     }
+    
     static void DrawAxisLine()
     {
         if (ObjectAxis == Vector3.one || ObjectAxis == Vector3.zero)
@@ -69,8 +62,8 @@ public class ChangeMouseCursorInEditor
         }
 
         Handles.color = lineColor;
-        Vector3 StartPoint = IntialObjectPosition - ObjectAxis * 1000f;
-        Vector3 endPoint = IntialObjectPosition + ObjectAxis * 1000f;
+        Vector3 StartPoint = DisplayAxisOriginPosition - ObjectAxis * 1000f;
+        Vector3 endPoint = DisplayAxisOriginPosition + ObjectAxis * 1000f;
 
 
         Handles.DrawLine(StartPoint, endPoint);

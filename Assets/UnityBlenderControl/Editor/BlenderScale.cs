@@ -47,7 +47,7 @@ public class BlenderScale : BlenderTransformMode
 
     public override void Cancel() {
         foreach (var data in perObjectData) {
-            data.Transform.position = data.InitialPosition;
+            data.Transform.localScale = data.InitialScale;
         }
         perObjectData = null;
     }

@@ -87,7 +87,10 @@ public class BlenderRotate : BlenderTransformMode
         
         // draw at each object's position
         foreach (var data in perObjectData) {
-            BlenderManager.DrawAxisLine(data.Transform.position, data.LocalAxis);
+            var direction = BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Global
+                ? BlenderManager.CurrentAxisVector
+                : data.LocalAxis;
+            BlenderManager.DrawAxisLine(data.Transform.position, direction);
         }
     }
 

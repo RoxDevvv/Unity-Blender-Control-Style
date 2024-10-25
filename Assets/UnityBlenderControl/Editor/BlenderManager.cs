@@ -25,9 +25,25 @@ public static class BlenderManager
     
     public static List<BlenderTransformMode> TransformModes;
     public static BlenderTransformMode CurrentTransformMode;
-    
-    
-    public static AxisMode CurrentAxisMode = AxisMode.Unlocked;
+
+
+    private static bool LockToAxis = false;
+
+    public static AxisMode CurrentAxisMode {
+        get {
+            if (LockToAxis) {
+                return Tools.pivotRotation == PivotRotation.Global ? AxisMode.Global : AxisMode.Local;
+            } else {
+                return AxisMode.Unlocked;
+            }
+        }
+        private set {
+            LockToAxis = value != AxisMode.Unlocked;
+            if (LockToAxis) {
+                Tools.pivotRotation = value == AxisMode.Global ? PivotRotation.Global : PivotRotation.Local;
+            }
+        }
+    }
     public static Vector3 CurrentAxisVector = Vector3.zero;
     public static Color CurrentAxisColor = Color.white;
     private static string CurrentNumberString = "";

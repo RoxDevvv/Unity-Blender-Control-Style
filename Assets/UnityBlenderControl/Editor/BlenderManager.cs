@@ -28,6 +28,7 @@ public static class BlenderManager
 
 
     private static bool LockToAxis = false;
+    private static PivotRotation PreviousPivotRotation = PivotRotation.Global;
 
     public static AxisMode CurrentAxisMode {
         get {
@@ -35,12 +36,6 @@ public static class BlenderManager
                 return Tools.pivotRotation == PivotRotation.Global ? AxisMode.Global : AxisMode.Local;
             } else {
                 return AxisMode.Unlocked;
-            }
-        }
-        private set {
-            LockToAxis = value != AxisMode.Unlocked;
-            if (LockToAxis) {
-                Tools.pivotRotation = value == AxisMode.Global ? PivotRotation.Global : PivotRotation.Local;
             }
         }
     }
@@ -53,10 +48,12 @@ public static class BlenderManager
 
     private static void Reset() {
         CurrentTransformMode = null;
-        CurrentAxisMode = AxisMode.Unlocked;
         CurrentAxisVector = Vector3.zero;
         CurrentNumberString = "";
         CurrentNumberIsPositive = false;
+        // reset AxisMode
+        LockToAxis = false;
+        Tools.pivotRotation = PreviousPivotRotation;
     }
 
     private static void OnDuringSceneGUI(SceneView sv) {
@@ -75,19 +72,36 @@ public static class BlenderManager
             }
         }
 
-        if (CurrentTransformMode == null) return;
+        if (CurrentTransformMode == null) {
+            PreviousPivotRotation = Tools.pivotRotation;
+            return;
+        }
         
         var axisCode = BlenderHelper.AxisKeycode(Event.current);
         if (axisCode != KeyCode.None) {
             var newAxisVector = BlenderHelper.GetAxisVector(axisCode);
             if (newAxisVector == CurrentAxisVector) {
                 // change axis mode Unlocked -> Global -> Local -> Unlocked
-                CurrentAxisMode = (AxisMode)(((int)CurrentAxisMode + 1) % 3);
+                if (!LockToAxis) {
+                    LockToAxis = true;
+                } else {
+                    if (Tools.pivotRotation == PreviousPivotRotation) {
+                        // switch pivot rotation
+                        Tools.pivotRotation = Tools.pivotRotation == PivotRotation.Global ? PivotRotation.Local : PivotRotation.Global;
+                    } else {
+                        // revert to unlocked
+                        LockToAxis = false;
+                        Tools.pivotRotation = PreviousPivotRotation;
+                    }
+                }
+
                 CurrentTransformMode.OnAxisModeChange();
             } else {
+                LockToAxis = true;
+                Tools.pivotRotation = PreviousPivotRotation;
+                
                 CurrentAxisColor = BlenderHelper.GetAxisColor(axisCode);
                 CurrentAxisVector = newAxisVector;
-                CurrentAxisMode = AxisMode.Global;
                 CurrentTransformMode.OnAxisChange();
             }
         }
@@ -109,8 +123,10 @@ public static class BlenderManager
             CurrentTransformMode.Apply();
             Reset();
         }
-        
-        CurrentTransformMode?.DrawSceneGUI(sv);
+
+        if (Event.current.type == EventType.Repaint) {
+            CurrentTransformMode?.DrawSceneGUI(sv);
+        }
     }
 
     public static Vector3 GetWorldAxisVector(Vector3 localVector) {

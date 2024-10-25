@@ -15,6 +15,7 @@ public class BlenderRotate : BlenderTransformMode
     private List<PerObjectData> perObjectData;
     
     private Vector2 mouseStartPosition;
+    public Vector3 averagePosition;
 
     public override bool ShouldTrigger(Event evt) {
         var targets = Selection.transforms;
@@ -31,6 +32,7 @@ public class BlenderRotate : BlenderTransformMode
         Undo.RegisterCompleteObjectUndo(transforms, "Rotate Object");
         perObjectData = new List<PerObjectData>();
         mouseStartPosition = Event.current.mousePosition;
+        averagePosition = Vector3.zero;
         foreach (var transform in transforms) {
             perObjectData.Add(new PerObjectData {
                 Transform = transform,
@@ -38,7 +40,9 @@ public class BlenderRotate : BlenderTransformMode
                 InitialRotation = transform.rotation,
                 LocalAxis = BlenderHelper.GetObjectAxis(transform, BlenderManager.CurrentAxisVector)
             });
+            averagePosition += transform.position;
         }
+        averagePosition /= transforms.Length;
     }
 
     public override void Cancel() {
@@ -81,26 +85,16 @@ public class BlenderRotate : BlenderTransformMode
         // change mouse icon
         EditorGUIUtility.AddCursorRect(new Rect(0, 0, Screen.width, Screen.height), MouseCursor.ResizeUpRight);
 
+        // draw a black line between the mouse and the pivot point (average object position)
         var mp = Event.current.mousePosition;
+        // for some reason the mouse and ScreenToWorldPoint use opposite y axies, so flip that around by doing viewport height - y
+        var mouseWorldPos = sceneView.camera.ScreenToWorldPoint(new Vector3(mp.x, sceneView.cameraViewport.height - mp.y, 1));
+        Handles.color = Color.black;
+        Handles.DrawLine(averagePosition, mouseWorldPos);
+        
         if (BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Unlocked) {
-            // draw a black line between the mouse and each object
-            foreach (var data in perObjectData) {
-                var objScreenPos = sceneView.camera.WorldToScreenPoint(data.Transform.position);
-                // for some reason the mouse and ScreenToWorldPoint use opposite y axies, so flip that around by doing viewport height - y
-                var mouseWorldPos = sceneView.camera.ScreenToWorldPoint(new Vector3(mp.x, sceneView.cameraViewport.height - mp.y, objScreenPos.z));
-                Handles.color = Color.black;
-                Handles.DrawLine(data.Transform.position, mouseWorldPos);
-            }
-            
             return;
         }
-        // draw a black line between the mouse and the center of the scree
-        // for some reason the mouse and ScreenToWorldPoint use opposite y axies, so flip that around by doing viewport height - y
-        var cameraViewport = sceneView.cameraViewport;
-        var mouseWorldPos2 = sceneView.camera.ScreenToWorldPoint(new Vector3(mp.x, cameraViewport.height - mp.y, .5f));
-        var centerWorldPos = sceneView.camera.ScreenToWorldPoint(new Vector3(cameraViewport.width / 2, cameraViewport.height / 2, .5f));
-        Handles.color = Color.black;
-        Handles.DrawLine(centerWorldPos, mouseWorldPos2);
         
         // draw at each object's position
         foreach (var data in perObjectData) {
@@ -133,12 +127,7 @@ public class BlenderRotate : BlenderTransformMode
         float snapValue = BlenderHelper.GetSnapRotate();
         // Calculate the center of the object in screen space
         //Vector3 objectCenter = HandleUtility.WorldToGUIPoint(data.Transform.position);
-        Vector3 center;
-        if (BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Unlocked) {
-            center = HandleUtility.WorldToGUIPoint(data.Transform.position);
-        } else {
-            center = sv.cameraViewport.size / 2;
-        }
+        Vector3 center = HandleUtility.WorldToGUIPoint(averagePosition);
         // Calculate the initial angle between the object center and the initial mouse position
         float initialAngle = AngleBetweenVector2(center, mouseStartPosition);
 

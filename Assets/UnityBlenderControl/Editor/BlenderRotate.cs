@@ -133,10 +133,10 @@ public class BlenderRotate : BlenderTransformMode
         float initialAngle = AngleBetweenVector2(center, mouseStartPosition);
 
         // Calculate the current angle between the object center and the current mouse position
-        float currentAngle = -AngleBetweenVector2(center, Event.current.mousePosition);
+        float currentAngle = AngleBetweenVector2(center, Event.current.mousePosition);
 
         // Calculate the rotation angle based on the difference between initial and current angles
-        float rotationAngle = currentAngle - initialAngle;
+        float rotationAngle = initialAngle - currentAngle;
 
         // calculate snap rotation
         float snapRotation = Mathf.Round(rotationAngle / snapValue) * snapValue;

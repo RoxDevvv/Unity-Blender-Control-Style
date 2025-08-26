@@ -84,10 +84,11 @@ public class BlenderScale : BlenderTransformMode
         EditorGUIUtility.AddCursorRect(new Rect(0, 0, Screen.width, Screen.height), MouseCursor.ResizeUpRight);
 
 
+        float screenScale = Screen.dpi / 96f;
         // draw a black line between the mouse and the pivot point (average object position)
         var mp = Event.current.mousePosition;
         // for some reason the mouse and ScreenToWorldPoint use opposite y axies, so flip that around by doing viewport height - y
-        var mouseWorldPos = sceneView.camera.ScreenToWorldPoint(new Vector3(mp.x, sceneView.cameraViewport.height - mp.y, 1));
+        var mouseWorldPos = sceneView.camera.ScreenToWorldPoint(new Vector3(screenScale * mp.x, screenScale * (sceneView.cameraViewport.height - mp.y), 1));
         Handles.color = Color.black;
         Handles.DrawLine(averagePosition, mouseWorldPos);
 

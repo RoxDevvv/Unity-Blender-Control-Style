@@ -85,10 +85,11 @@ public class BlenderRotate : BlenderTransformMode
         // change mouse icon
         EditorGUIUtility.AddCursorRect(new Rect(0, 0, Screen.width, Screen.height), MouseCursor.ResizeUpRight);
 
+        float screenScale = Screen.dpi / 96f;
         // draw a black line between the mouse and the pivot point (average object position)
         var mp = Event.current.mousePosition;
         // for some reason the mouse and ScreenToWorldPoint use opposite y axies, so flip that around by doing viewport height - y
-        var mouseWorldPos = sceneView.camera.ScreenToWorldPoint(new Vector3(mp.x, sceneView.cameraViewport.height - mp.y, 1));
+        var mouseWorldPos = sceneView.camera.ScreenToWorldPoint(new Vector3(screenScale * mp.x, screenScale * (sceneView.cameraViewport.height - mp.y), 1));
         Handles.color = Color.black;
         Handles.DrawLine(averagePosition, mouseWorldPos);
         
@@ -132,10 +133,10 @@ public class BlenderRotate : BlenderTransformMode
         float initialAngle = AngleBetweenVector2(center, mouseStartPosition);
 
         // Calculate the current angle between the object center and the current mouse position
-        float currentAngle = -AngleBetweenVector2(center, Event.current.mousePosition);
+        float currentAngle = AngleBetweenVector2(center, Event.current.mousePosition);
 
         // Calculate the rotation angle based on the difference between initial and current angles
-        float rotationAngle = currentAngle - initialAngle;
+        float rotationAngle = initialAngle - currentAngle;
 
         // calculate snap rotation
         float snapRotation = Mathf.Round(rotationAngle / snapValue) * snapValue;

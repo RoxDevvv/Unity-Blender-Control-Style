@@ -42,7 +42,7 @@ public static class BlenderManager
     public static Vector3 CurrentAxisVector = Vector3.zero;
     public static Color CurrentAxisColor = Color.white;
     private static string CurrentNumberString = "";
-    private static bool CurrentNumberIsPositive = false;
+    private static bool CurrentNumberIsPositive = true;
     public static float CurrentNumber = 0;
     public static bool MoveByNumber => !float.IsNaN(CurrentNumber);
 
@@ -50,7 +50,7 @@ public static class BlenderManager
         CurrentTransformMode = null;
         CurrentAxisVector = Vector3.zero;
         CurrentNumberString = "";
-        CurrentNumberIsPositive = false;
+        CurrentNumberIsPositive = true;
         // reset AxisMode
         LockToAxis = false;
         Tools.pivotRotation = PreviousPivotRotation;

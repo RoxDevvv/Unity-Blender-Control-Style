@@ -84,10 +84,11 @@ public class BlenderScale : BlenderTransformMode
         EditorGUIUtility.AddCursorRect(new Rect(0, 0, Screen.width, Screen.height), MouseCursor.ResizeUpRight);
 
 
+        float screenScale = Screen.dpi / 96f;
         // draw a black line between the mouse and the pivot point (average object position)
         var mp = Event.current.mousePosition;
         // for some reason the mouse and ScreenToWorldPoint use opposite y axies, so flip that around by doing viewport height - y
-        var mouseWorldPos = sceneView.camera.ScreenToWorldPoint(new Vector3(mp.x, sceneView.cameraViewport.height - mp.y, 1));
+        var mouseWorldPos = sceneView.camera.ScreenToWorldPoint(new Vector3(screenScale * mp.x, screenScale * (sceneView.cameraViewport.height - mp.y), 1));
         Handles.color = Color.black;
         Handles.DrawLine(averagePosition, mouseWorldPos);
 
@@ -120,14 +121,17 @@ public class BlenderScale : BlenderTransformMode
         float snapValue = BlenderHelper.GetSnapScale();
         // Calculate the center of the object in screen space
         var center = HandleUtility.WorldToGUIPoint(averagePosition);
-        // Calculate the initial distance between the object center and the initial mouse position
-        float initialLineLength = Vector2.Distance(center, mouseStartPosition);
 
-        // Calculate the current distance between the object center and the current mouse position
-        float currentLineLength = Vector2.Distance(center, Event.current.mousePosition);
+        Vector3 centerToStartMouse = mouseStartPosition - center;
+        Vector3 centerToCurrentMouse = Event.current.mousePosition - center;
 
         // Calculate the scale factor based on the ratio of initial and current line lengths
+        float initialLineLength = centerToStartMouse.magnitude;
+        float currentLineLength = centerToCurrentMouse.magnitude;
         float scaleFactor = currentLineLength / initialLineLength;
+        if (Vector3.Dot(centerToStartMouse, centerToCurrentMouse) < 0f) {
+            scaleFactor = -scaleFactor;
+        }
         // calculate snap scale
         float SnapScale = Mathf.Round(scaleFactor / snapValue) * snapValue;
         SnapScale = SnapScale == 0 ? 1f : SnapScale;

@@ -121,14 +121,17 @@ public class BlenderScale : BlenderTransformMode
         float snapValue = BlenderHelper.GetSnapScale();
         // Calculate the center of the object in screen space
         var center = HandleUtility.WorldToGUIPoint(averagePosition);
-        // Calculate the initial distance between the object center and the initial mouse position
-        float initialLineLength = Vector2.Distance(center, mouseStartPosition);
 
-        // Calculate the current distance between the object center and the current mouse position
-        float currentLineLength = Vector2.Distance(center, Event.current.mousePosition);
+        Vector3 centerToStartMouse = mouseStartPosition - center;
+        Vector3 centerToCurrentMouse = Event.current.mousePosition - center;
 
         // Calculate the scale factor based on the ratio of initial and current line lengths
+        float initialLineLength = centerToStartMouse.magnitude;
+        float currentLineLength = centerToCurrentMouse.magnitude;
         float scaleFactor = currentLineLength / initialLineLength;
+        if (Vector3.Dot(centerToStartMouse, centerToCurrentMouse) < 0f) {
+            scaleFactor = -scaleFactor;
+        }
         // calculate snap scale
         float SnapScale = Mathf.Round(scaleFactor / snapValue) * snapValue;
         SnapScale = SnapScale == 0 ? 1f : SnapScale;

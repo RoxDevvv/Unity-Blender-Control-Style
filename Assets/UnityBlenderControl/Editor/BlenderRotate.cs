@@ -140,7 +140,18 @@ public class BlenderRotate : BlenderTransformMode
 
         // calculate snap rotation
         float snapRotation = Mathf.Round(rotationAngle / snapValue) * snapValue;
-        
+
+        // When looking from the opposite direction the rotation needs to be inverted
+        if (SceneView.lastActiveSceneView != null) {
+            Vector3 viewDirection = SceneView.lastActiveSceneView.camera.transform.forward;
+            if ((BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Local
+                && Vector3.Dot(viewDirection, data.LocalAxis) > 0f)
+                || (BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Global
+                && Vector3.Dot(viewDirection, BlenderManager.CurrentAxisVector) > 0f)) {
+                rotationAngle = -rotationAngle;
+            }
+        }
+
         // Use a Quaternion to represent the rotation
         float angle = isSnappingEnabled ? snapRotation : rotationAngle;
 

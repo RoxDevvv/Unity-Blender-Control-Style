@@ -20,8 +20,7 @@ public class BlenderScale : BlenderTransformMode
     public override bool ShouldTrigger(Event evt) {
         var targets = Selection.transforms;
 
-        return evt.type == EventType.KeyDown
-               && evt.keyCode == KeyCode.S
+        return BlenderHelper.IsKeyDown(evt, KeyCode.S)
                && !BlenderHelper.IsModifierPressed(evt)
                && !BlenderHelper.RightMouseHeld
                && targets.Length > 0;

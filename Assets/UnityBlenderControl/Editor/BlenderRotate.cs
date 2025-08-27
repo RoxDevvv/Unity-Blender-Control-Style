@@ -20,8 +20,7 @@ public class BlenderRotate : BlenderTransformMode
     public override bool ShouldTrigger(Event evt) {
         var targets = Selection.transforms;
         
-        return evt.type == EventType.KeyDown
-            && evt.keyCode == KeyCode.R
+        return BlenderHelper.IsKeyDown(evt, KeyCode.R)
             && !BlenderHelper.IsModifierPressed(evt)
             && !BlenderHelper.RightMouseHeld
             && targets.Length > 0;
@@ -158,7 +157,7 @@ public class BlenderRotate : BlenderTransformMode
         DoRotate(sv, data, angle);
     }
     void RotateByAngle(SceneView sv, PerObjectData data) {
-        DoRotate(sv, data, BlenderManager.CurrentNumber * Mathf.Deg2Rad);
+        DoRotate(sv, data, BlenderManager.CurrentNumber);
     }
     // Function to calculate the angle between two Vector2 points
     float AngleBetweenVector2(Vector3 vec1, Vector3 vec2)

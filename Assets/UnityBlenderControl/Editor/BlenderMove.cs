@@ -17,8 +17,7 @@ public class BlenderMove : BlenderTransformMode {
     public override bool ShouldTrigger(Event evt) {
         var targets = Selection.transforms;
 
-        return evt.type == EventType.KeyDown
-               && evt.keyCode == KeyCode.G
+        return BlenderHelper.IsKeyDown(evt, KeyCode.G)
                && !BlenderHelper.IsModifierPressed(evt)
                && !BlenderHelper.RightMouseHeld
                && targets.Length > 0;

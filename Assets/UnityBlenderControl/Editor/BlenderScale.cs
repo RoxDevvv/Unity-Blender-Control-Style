@@ -18,12 +18,7 @@ public class BlenderScale : BlenderTransformMode
     public Vector3 averagePosition;
 
     public override bool ShouldTrigger(Event evt) {
-        var targets = Selection.transforms;
-
-        return BlenderHelper.IsKeyDown(evt, KeyCode.S)
-               && !BlenderHelper.IsModifierPressed(evt)
-               && !BlenderHelper.RightMouseHeld
-               && targets.Length > 0;
+        return BlenderHelper.ShouldTriggerSimple(evt, KeyCode.S);
     }
 
     public override void Initialize() {

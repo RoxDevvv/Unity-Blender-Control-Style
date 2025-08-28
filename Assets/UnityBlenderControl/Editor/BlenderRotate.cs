@@ -11,19 +11,14 @@ public class BlenderRotate : BlenderTransformMode
         public Quaternion InitialRotation;
         public Vector3 LocalAxis;
     }
-    
+
     private List<PerObjectData> perObjectData;
-    
+
     private Vector2 mouseStartPosition;
     public Vector3 averagePosition;
 
     public override bool ShouldTrigger(Event evt) {
-        var targets = Selection.transforms;
-        
-        return BlenderHelper.IsKeyDown(evt, KeyCode.R)
-            && !BlenderHelper.IsModifierPressed(evt)
-            && !BlenderHelper.RightMouseHeld
-            && targets.Length > 0;
+        return BlenderHelper.ShouldTriggerSimple(evt, KeyCode.R);
     }
 
     public override void Initialize() {

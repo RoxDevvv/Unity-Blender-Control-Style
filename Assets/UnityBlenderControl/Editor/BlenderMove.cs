@@ -10,17 +10,12 @@ public class BlenderMove : BlenderTransformMode {
         public Vector3 InitialOffset => InitialPosition - InitialMouse;
         public Vector3 LocalAxis;
     }
-    
+
     private List<PerObjectData> perObjectData;
     public Vector3 averagePosition;
 
     public override bool ShouldTrigger(Event evt) {
-        var targets = Selection.transforms;
-
-        return BlenderHelper.IsKeyDown(evt, KeyCode.G)
-               && !BlenderHelper.IsModifierPressed(evt)
-               && !BlenderHelper.RightMouseHeld
-               && targets.Length > 0;
+        return BlenderHelper.ShouldTriggerSimple(evt, KeyCode.G);
     }
 
     public override void Initialize() {

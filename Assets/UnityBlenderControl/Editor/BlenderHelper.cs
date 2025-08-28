@@ -2,6 +2,7 @@
 // using System;
 // using System.Reflection;
 using System.Globalization;
+using UnityEditor;
 using UnityEngine;
 
 public static class BlenderHelper
@@ -145,15 +146,27 @@ public static class BlenderHelper
         }
         return KeyCode.None;
     }
+
     public static bool IsKeyDown(Event evt, KeyCode key)
     {
-        if (evt.type == EventType.KeyDown && evt.keyCode == key)
-        {
-            evt.Use(); // prevent Unity overlay
-            return true;
-        }
-        return false;
+        return evt.type == EventType.KeyDown && evt.keyCode == key;
     }
+
+    public static bool ShouldTriggerSimple(Event evt, KeyCode keyCode)
+    {
+        var targets = Selection.transforms;
+
+        bool trigger = IsKeyDown(evt, keyCode)
+            && !IsModifierPressed(evt)
+            && !RightMouseHeld
+            && targets.Length > 0;
+
+        if (trigger) {
+            evt.Use();
+        }
+        return trigger;
+    }
+
     public static void AppendUnitNumber(Event e, ref string unitNumber, ref bool isPositive)
     {
         if (!(e.type == EventType.KeyDown && e.isKey))

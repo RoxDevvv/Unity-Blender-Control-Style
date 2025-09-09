@@ -5,24 +5,31 @@ using UnityEngine;
 using static TransformModeManager;
 
 [InitializeOnLoad]
-public static class BlenderManager
-{
-    
+public static class BlenderManager {
     public enum AxisMode {
         Unlocked = 0,
         Global = 1,
         Local = 2
     }
 
-    
+    public enum PivotPoint {
+        IndividualOrigins,
+        BoundingBoxCenter,
+        ActiveElement,
+        MedianPoint,
+        // OnlyLocation,
+        ThreeDCursor,
+    }
+
+
     static BlenderManager() {
         // Create an instance of BlenderMove when the BlenderManager is enabled
         TransformModes = new List<BlenderTransformMode> { new BlenderMove(), new BlenderRotate(), new BlenderScale() };
-        
+
         SceneView.duringSceneGui -= OnDuringSceneGUI;
         SceneView.duringSceneGui += OnDuringSceneGUI;
     }
-    
+
     public static List<BlenderTransformMode> TransformModes;
     public static BlenderTransformMode CurrentTransformMode;
 
@@ -45,6 +52,7 @@ public static class BlenderManager
     private static bool CurrentNumberIsPositive = true;
     public static float CurrentNumber = 0;
     public static bool MoveByNumber => !float.IsNaN(CurrentNumber);
+    public static PivotPoint CurrentPivotPoint = PivotPoint.IndividualOrigins;
 
     private static void Reset() {
         CurrentTransformMode = null;
@@ -62,7 +70,7 @@ public static class BlenderManager
 
         BlenderHelper.RightMouseHeldCheck();
         BlenderHelper.CheckSnap();
-        
+
         foreach (var transformMode in TransformModes) {
             if (transformMode != CurrentTransformMode && transformMode.ShouldTrigger(Event.current)) {
                 CurrentTransformMode?.Cancel();
@@ -76,7 +84,7 @@ public static class BlenderManager
             PreviousPivotRotation = Tools.pivotRotation;
             return;
         }
-        
+
         var axisCode = BlenderHelper.AxisKeycode(Event.current);
         if (axisCode != KeyCode.None) {
             var newAxisVector = BlenderHelper.GetAxisVector(axisCode);
@@ -99,7 +107,7 @@ public static class BlenderManager
             } else {
                 LockToAxis = true;
                 Tools.pivotRotation = PreviousPivotRotation;
-                
+
                 CurrentAxisColor = BlenderHelper.GetAxisColor(axisCode);
                 CurrentAxisVector = newAxisVector;
                 CurrentTransformMode.OnAxisChange();
@@ -107,13 +115,13 @@ public static class BlenderManager
         }
 
         BlenderHelper.AppendUnitNumber(Event.current, ref CurrentNumberString, ref CurrentNumberIsPositive);
-        
+
         if (BlenderHelper.TryParseUnitNumber(CurrentNumberString, CurrentNumberIsPositive, out var newNumber)) {
             CurrentNumber = newNumber;
         } else {
             CurrentNumber = float.NaN;
         }
-            
+
         CurrentTransformMode.Process(sv);
 
         if (BlenderHelper.RevertKeyPressed(Event.current)) {
@@ -137,7 +145,7 @@ public static class BlenderManager
             _ => throw new ArgumentOutOfRangeException()
         };
     }
-    
+
     public static void DrawAxisLine(Vector3 origin, Vector3 direction)
     {
         if (direction == Vector3.one || direction == Vector3.zero)

@@ -80,7 +80,7 @@ public class BlenderMove : BlenderTransformMode {
             case BlenderManager.AxisMode.Local:
                 // draw at each object's position
                 foreach (var data in perObjectData) {
-                    BlenderManager.DrawAxisLine(data.Transform.position, data.LocalAxis);
+                    BlenderManager.DrawAxisLine(data.InitialPosition, data.LocalAxis);
                 }
                 break;
         }
@@ -107,7 +107,7 @@ public class BlenderMove : BlenderTransformMode {
             _ => Vector3.zero
         };
     }
-    
+
     private void MoveByMouse(PerObjectData data) {
         Vector3 currentMousePosition = GetWorldMouse(data.InitialPosition);
         Vector3 snapValue = BlenderHelper.GetSnapMove();

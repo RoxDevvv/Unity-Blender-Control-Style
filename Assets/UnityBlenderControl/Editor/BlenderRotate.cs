@@ -3,8 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using static TransformModeManager;
 
-public class BlenderRotate : BlenderTransformMode
-{
+public class BlenderRotate : BlenderTransformMode {
     struct PerObjectData {
         public Transform Transform;
         public Vector3 InitialPosition;
@@ -86,34 +85,47 @@ public class BlenderRotate : BlenderTransformMode
         var mouseWorldPos = sceneView.camera.ScreenToWorldPoint(new Vector3(screenScale * mp.x, screenScale * (sceneView.cameraViewport.height - mp.y), 1));
         Handles.color = Color.black;
         Handles.DrawLine(averagePosition, mouseWorldPos);
-        
-        if (BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Unlocked) {
-            return;
-        }
-        
-        // draw at each object's position
-        foreach (var data in perObjectData) {
-            var direction = BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Global
-                ? BlenderManager.CurrentAxisVector
-                : data.LocalAxis;
-            BlenderManager.DrawAxisLine(data.Transform.position, direction);
+
+        // TODO eliminate duplicated code
+        switch (BlenderManager.CurrentAxisMode) {
+            case BlenderManager.AxisMode.Unlocked:
+                break;
+            case BlenderManager.AxisMode.Global:
+                // draw at average position
+                BlenderManager.DrawAxisLine(averagePosition, BlenderManager.CurrentAxisVector);
+                break;
+            case BlenderManager.AxisMode.Local:
+                // draw at each object's position
+                foreach (var data in perObjectData) {
+                    BlenderManager.DrawAxisLine(data.InitialPosition, data.LocalAxis);
+                }
+                break;
         }
     }
 
     private void DoRotate(SceneView sv, PerObjectData data, float amount) {
+        Quaternion deltaRotation;
         switch (BlenderManager.CurrentAxisMode) {
             case BlenderManager.AxisMode.Local:
-                data.Transform.rotation = data.InitialRotation * Quaternion.AngleAxis(amount, BlenderManager.CurrentAxisVector);
+                deltaRotation = Quaternion.AngleAxis(amount, BlenderManager.CurrentAxisVector);
+                data.Transform.rotation = data.InitialRotation * deltaRotation;
                 break;
             case BlenderManager.AxisMode.Global:
-                data.Transform.rotation = Quaternion.AngleAxis(amount, BlenderManager.CurrentAxisVector) * data.InitialRotation;
+                deltaRotation = Quaternion.AngleAxis(amount, BlenderManager.CurrentAxisVector);
+                data.Transform.rotation = deltaRotation * data.InitialRotation;
                 break;
             case BlenderManager.AxisMode.Unlocked:
-                data.Transform.rotation = Quaternion.AngleAxis(amount, -sv.camera.transform.forward) * data.InitialRotation;
+                deltaRotation = Quaternion.AngleAxis(amount, -sv.camera.transform.forward);
+                data.Transform.rotation = deltaRotation * data.InitialRotation;
                 break;
             default:
+                deltaRotation = Quaternion.identity;
                 data.Transform.rotation = data.InitialRotation;
                 break;
+        }
+
+        if (BlenderManager.CurrentPivotPoint == BlenderManager.PivotPoint.MedianPoint) {
+            data.Transform.position = averagePosition + deltaRotation * (data.InitialPosition - averagePosition);
         }
     }
 
@@ -151,12 +163,13 @@ public class BlenderRotate : BlenderTransformMode
 
         DoRotate(sv, data, angle);
     }
+
     void RotateByAngle(SceneView sv, PerObjectData data) {
         DoRotate(sv, data, BlenderManager.CurrentNumber);
     }
+
     // Function to calculate the angle between two Vector2 points
-    float AngleBetweenVector2(Vector3 vec1, Vector3 vec2)
-    {
+    float AngleBetweenVector2(Vector3 vec1, Vector3 vec2) {
         Vector3 from = vec2 - vec1;
         Vector3 to = new Vector3(1, 0, 0); // You can change this to your desired reference vector
 

@@ -3,17 +3,16 @@ using UnityEditor;
 using UnityEngine;
 using static TransformModeManager;
 
-public class BlenderScale : BlenderTransformMode
-{
-        struct PerObjectData {
+public class BlenderScale : BlenderTransformMode {
+    struct PerObjectData {
         public Transform Transform;
         public Vector3 InitialPosition;
         public Vector3 InitialScale;
         public Vector3 LocalAxis;
     }
-    
+
     private List<PerObjectData> perObjectData;
-    
+
     private Vector2 mouseStartPosition;
     public Vector3 averagePosition;
 
@@ -42,6 +41,7 @@ public class BlenderScale : BlenderTransformMode
     public override void Cancel() {
         foreach (var data in perObjectData) {
             data.Transform.localScale = data.InitialScale;
+            data.Transform.position = data.InitialPosition;
         }
         perObjectData = null;
     }
@@ -89,7 +89,7 @@ public class BlenderScale : BlenderTransformMode
         if (BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Unlocked) {
             return;
         }
-        
+
         foreach (var data in perObjectData) {
             BlenderManager.DrawAxisLine(data.Transform.position, data.LocalAxis);
         }
@@ -105,13 +105,20 @@ public class BlenderScale : BlenderTransformMode
             axis.z == 0 ? 1f : scaleFactor
         );
     }
-    void ScaleByUnit(PerObjectData data)
-    {
-        Vector3 scale = ModifyScaleVector(BlenderManager.CurrentNumber);
+
+    void DoScale(PerObjectData data, float amount) {
+        Vector3 scale = ModifyScaleVector(amount);
         data.Transform.localScale = Vector3.Scale(scale, data.InitialScale);
+        if (BlenderManager.CurrentPivotPoint == BlenderManager.PivotPoint.MedianPoint) {
+            data.Transform.position = averagePosition + Vector3.Scale(scale, data.InitialPosition - averagePosition);
+        }
     }
-    void ScaleByMouse(PerObjectData data)
-    {
+
+    void ScaleByUnit(PerObjectData data) {
+        DoScale(data, BlenderManager.CurrentNumber);
+    }
+
+    void ScaleByMouse(PerObjectData data) {
         float snapValue = BlenderHelper.GetSnapScale();
         // Calculate the center of the object in screen space
         var center = HandleUtility.WorldToGUIPoint(averagePosition);
@@ -129,10 +136,9 @@ public class BlenderScale : BlenderTransformMode
         // calculate snap scale
         float SnapScale = Mathf.Round(scaleFactor / snapValue) * snapValue;
         SnapScale = SnapScale == 0 ? 1f : SnapScale;
-        
+
         float DesiredScale = isSnappingEnabled ? SnapScale : scaleFactor;
         // Apply scale to the object
-        Vector3 scale = ModifyScaleVector(DesiredScale);
-        data.Transform.localScale = Vector3.Scale(scale, data.InitialScale);
+        DoScale(data, DesiredScale);
     }
 }

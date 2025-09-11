@@ -15,6 +15,7 @@ public class BlenderScale : BlenderTransformMode {
 
     private Vector2 mouseStartPosition;
     public Vector3 averagePosition;
+    Bounds bounds;
 
     public override bool ShouldTrigger(Event evt) {
         return BlenderHelper.ShouldTriggerSimple(evt, KeyCode.S);
@@ -26,6 +27,7 @@ public class BlenderScale : BlenderTransformMode {
         perObjectData = new List<PerObjectData>();
         averagePosition = Vector3.zero;
         mouseStartPosition = Event.current.mousePosition;
+        bounds.SetMinMax(Vector3.positiveInfinity, Vector3.negativeInfinity);
         foreach (var transform in transforms) {
             perObjectData.Add(new PerObjectData {
                 Transform = transform,
@@ -33,7 +35,10 @@ public class BlenderScale : BlenderTransformMode {
                 InitialScale = transform.localScale,
                 LocalAxis = BlenderHelper.GetObjectAxis(transform, BlenderManager.CurrentAxisVector)
             });
+
             averagePosition += transform.position;
+
+            bounds.Encapsulate(transform.position);
         }
         averagePosition /= transforms.Length;
     }
@@ -83,8 +88,9 @@ public class BlenderScale : BlenderTransformMode {
         var mp = Event.current.mousePosition;
         // for some reason the mouse and ScreenToWorldPoint use opposite y axies, so flip that around by doing viewport height - y
         var mouseWorldPos = sceneView.camera.ScreenToWorldPoint(new Vector3(screenScale * mp.x, screenScale * (sceneView.cameraViewport.height - mp.y), 1));
+        Vector3 center = BlenderHelper.GetTransformationCenter(averagePosition, bounds);
         Handles.color = Color.black;
-        Handles.DrawLine(averagePosition, mouseWorldPos);
+        Handles.DrawLine(center, mouseWorldPos);
 
         if (BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Unlocked) {
             return;
@@ -109,8 +115,10 @@ public class BlenderScale : BlenderTransformMode {
     void DoScale(PerObjectData data, float amount) {
         Vector3 scale = ModifyScaleVector(amount);
         data.Transform.localScale = Vector3.Scale(scale, data.InitialScale);
-        if (BlenderManager.CurrentPivotPoint == BlenderManager.PivotPoint.MedianPoint) {
-            data.Transform.position = averagePosition + Vector3.Scale(scale, data.InitialPosition - averagePosition);
+
+        if (BlenderManager.CurrentPivotPoint != BlenderManager.PivotPoint.IndividualOrigins) {
+            Vector3 center = BlenderHelper.GetTransformationCenter(averagePosition, bounds);
+            data.Transform.position = center + Vector3.Scale(scale, data.InitialPosition - center);
         }
     }
 
@@ -121,7 +129,7 @@ public class BlenderScale : BlenderTransformMode {
     void ScaleByMouse(PerObjectData data) {
         float snapValue = BlenderHelper.GetSnapScale();
         // Calculate the center of the object in screen space
-        var center = HandleUtility.WorldToGUIPoint(averagePosition);
+        var center = HandleUtility.WorldToGUIPoint(BlenderHelper.GetTransformationCenter(averagePosition, bounds));
 
         Vector3 centerToStartMouse = mouseStartPosition - center;
         Vector3 centerToCurrentMouse = Event.current.mousePosition - center;

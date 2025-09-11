@@ -11,7 +11,6 @@ public static class PivotPointPieMenu {
         CreateEntry("Bounding Box Center", "TreeEditor.Material", PivotPoint.BoundingBoxCenter),
         CreateEntry("Active Element", "TreeEditor.Material", PivotPoint.ActiveElement),
         CreateEntry("Media Point", "TreeEditor.Material", PivotPoint.MedianPoint),
-        CreateEntry("3D Cursor", "TreeEditor.Material", PivotPoint.ThreeDCursor),
     });
 
     [ClutchShortcut("Pivot Point Pie Menu", typeof(SceneView), KeyCode.Period)]

@@ -53,7 +53,7 @@ public static class BlenderHelper
             return Vector3.zero;
         }
     }
- 
+
     public static Vector3 GetAxisVector(KeyCode keyCode) {
         if (TransformModeManager.swapYAndZ) {
             return keyCode switch {
@@ -61,7 +61,7 @@ public static class BlenderHelper
                 KeyCode.Y => Vector3.forward,
                 KeyCode.Z => Vector3.up,
                 _ => Vector3.one
-            }; 
+            };
         } else {
             return keyCode switch {
                 KeyCode.X => Vector3.right,
@@ -79,7 +79,7 @@ public static class BlenderHelper
                 KeyCode.Y => Color.blue,
                 KeyCode.Z => Color.green,
                 _ => Color.white
-            }; 
+            };
         } else {
             return keyCode switch {
                 KeyCode.X => Color.red,
@@ -89,7 +89,7 @@ public static class BlenderHelper
             };
         }
     }
-    
+
     public static bool RightMouseHeld = false;
     public static void RightMouseHeldCheck()
     {
@@ -121,7 +121,7 @@ public static class BlenderHelper
     {
         bool cancel = e.type == EventType.KeyDown && (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter)
             || (e.type == EventType.MouseDown && e.button == 0);
-        if (cancel) 
+        if (cancel)
         {
             e.Use();
         }
@@ -131,7 +131,7 @@ public static class BlenderHelper
     {
         bool revert = (e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape)
             || (e.type == EventType.MouseDown && e.button == 1);
-        if (revert) 
+        if (revert)
         {
             e.Use();
         }
@@ -212,8 +212,18 @@ public static class BlenderHelper
         }
         return false;
     }
-    
+
     public static bool IsModifierPressed(Event e) {
         return e.control || e.alt || e.shift;
+    }
+
+    public static Vector3 GetTransformationCenter(Vector3 averagePosition, Bounds bounds) {
+        return BlenderManager.CurrentPivotPoint switch {
+            BlenderManager.PivotPoint.ActiveElement => Selection.activeGameObject.transform.position,
+            BlenderManager.PivotPoint.MedianPoint => averagePosition,
+            BlenderManager.PivotPoint.BoundingBoxCenter => bounds.center,
+            BlenderManager.PivotPoint.IndividualOrigins => averagePosition,
+            _ => Vector3.negativeInfinity // Not possible
+        };
     }
 }

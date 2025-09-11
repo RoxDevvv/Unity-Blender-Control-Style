@@ -17,10 +17,7 @@ public static class BlenderManager {
         BoundingBoxCenter,
         ActiveElement,
         MedianPoint,
-        // OnlyLocation,
-        ThreeDCursor,
     }
-
 
     static BlenderManager() {
         // Create an instance of BlenderMove when the BlenderManager is enabled
@@ -36,6 +33,7 @@ public static class BlenderManager {
 
     private static bool LockToAxis = false;
     private static PivotRotation PreviousPivotRotation = PivotRotation.Global;
+    public static PivotPoint CurrentPivotPoint = PivotPoint.MedianPoint;
 
     public static AxisMode CurrentAxisMode {
         get {
@@ -52,7 +50,6 @@ public static class BlenderManager {
     private static bool CurrentNumberIsPositive = true;
     public static float CurrentNumber = 0;
     public static bool MoveByNumber => !float.IsNaN(CurrentNumber);
-    public static PivotPoint CurrentPivotPoint = PivotPoint.IndividualOrigins;
 
     private static void Reset() {
         CurrentTransformMode = null;

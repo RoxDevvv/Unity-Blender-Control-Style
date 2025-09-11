@@ -15,6 +15,7 @@ public class BlenderRotate : BlenderTransformMode {
 
     private Vector2 mouseStartPosition;
     public Vector3 averagePosition;
+    Bounds bounds;
 
     public override bool ShouldTrigger(Event evt) {
         return BlenderHelper.ShouldTriggerSimple(evt, KeyCode.R);
@@ -26,6 +27,7 @@ public class BlenderRotate : BlenderTransformMode {
         perObjectData = new List<PerObjectData>();
         mouseStartPosition = Event.current.mousePosition;
         averagePosition = Vector3.zero;
+        bounds.SetMinMax(Vector3.positiveInfinity, Vector3.negativeInfinity);
         foreach (var transform in transforms) {
             perObjectData.Add(new PerObjectData {
                 Transform = transform,
@@ -33,7 +35,10 @@ public class BlenderRotate : BlenderTransformMode {
                 InitialRotation = transform.rotation,
                 LocalAxis = BlenderHelper.GetObjectAxis(transform, BlenderManager.CurrentAxisVector)
             });
+
             averagePosition += transform.position;
+
+            bounds.Encapsulate(transform.position);
         }
         averagePosition /= transforms.Length;
     }
@@ -83,8 +88,9 @@ public class BlenderRotate : BlenderTransformMode {
         var mp = Event.current.mousePosition;
         // for some reason the mouse and ScreenToWorldPoint use opposite y axies, so flip that around by doing viewport height - y
         var mouseWorldPos = sceneView.camera.ScreenToWorldPoint(new Vector3(screenScale * mp.x, screenScale * (sceneView.cameraViewport.height - mp.y), 1));
+        Vector3 center = BlenderHelper.GetTransformationCenter(averagePosition, bounds);
         Handles.color = Color.black;
-        Handles.DrawLine(averagePosition, mouseWorldPos);
+        Handles.DrawLine(center, mouseWorldPos);
 
         // TODO eliminate duplicated code
         switch (BlenderManager.CurrentAxisMode) {
@@ -92,7 +98,7 @@ public class BlenderRotate : BlenderTransformMode {
                 break;
             case BlenderManager.AxisMode.Global:
                 // draw at average position
-                BlenderManager.DrawAxisLine(averagePosition, BlenderManager.CurrentAxisVector);
+                BlenderManager.DrawAxisLine(center, BlenderManager.CurrentAxisVector);
                 break;
             case BlenderManager.AxisMode.Local:
                 // draw at each object's position
@@ -124,8 +130,9 @@ public class BlenderRotate : BlenderTransformMode {
                 break;
         }
 
-        if (BlenderManager.CurrentPivotPoint == BlenderManager.PivotPoint.MedianPoint) {
-            data.Transform.position = averagePosition + deltaRotation * (data.InitialPosition - averagePosition);
+        if (BlenderManager.CurrentPivotPoint != BlenderManager.PivotPoint.IndividualOrigins) {
+            Vector3 center = BlenderHelper.GetTransformationCenter(averagePosition, bounds);
+            data.Transform.position = center + deltaRotation * (data.InitialPosition - center);
         }
     }
 
@@ -134,7 +141,7 @@ public class BlenderRotate : BlenderTransformMode {
         float snapValue = BlenderHelper.GetSnapRotate();
         // Calculate the center of the object in screen space
         //Vector3 objectCenter = HandleUtility.WorldToGUIPoint(data.Transform.position);
-        Vector3 center = HandleUtility.WorldToGUIPoint(averagePosition);
+        Vector3 center = HandleUtility.WorldToGUIPoint(BlenderHelper.GetTransformationCenter(averagePosition, bounds));
         // Calculate the initial angle between the object center and the initial mouse position
         float initialAngle = AngleBetweenVector2(center, mouseStartPosition);
 

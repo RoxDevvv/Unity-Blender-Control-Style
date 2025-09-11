@@ -4,9 +4,7 @@
     "displayName": "Unity Blender Control",
     "description": "This is a Package for Unity to bring blender style of controling objects",
     "unity": "2022.3",
-    "dependencies": {
-        "wischeropp.jonas.scene-view-pie-menu": "https://github.com/JonasWischeropp/unity-scene-view-pie-menu.git#1.1.0"
-    },
+    "dependencies": { },
     "keywords": [
         "blender",
         "unity",

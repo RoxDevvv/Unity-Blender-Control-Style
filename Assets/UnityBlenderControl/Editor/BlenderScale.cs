@@ -114,8 +114,10 @@ public class BlenderScale : BlenderTransformMode {
 
     void DoScale(PerObjectData data, float amount) {
         Vector3 scale = ModifyScaleVector(amount);
+        // Scale change
         data.Transform.localScale = Vector3.Scale(scale, data.InitialScale);
 
+        // Postion change
         if (BlenderManager.CurrentPivotPoint != BlenderManager.PivotPoint.IndividualOrigins) {
             Vector3 center = BlenderHelper.GetTransformationCenter(averagePosition, bounds);
             data.Transform.position = center + Vector3.Scale(scale, data.InitialPosition - center);

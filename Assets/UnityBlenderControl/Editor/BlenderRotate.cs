@@ -110,6 +110,7 @@ public class BlenderRotate : BlenderTransformMode {
     }
 
     private void DoRotate(SceneView sv, PerObjectData data, float amount) {
+        // Rotation change
         Quaternion deltaRotation;
         switch (BlenderManager.CurrentAxisMode) {
             case BlenderManager.AxisMode.Local:
@@ -130,9 +131,20 @@ public class BlenderRotate : BlenderTransformMode {
                 break;
         }
 
+        // Position change
         if (BlenderManager.CurrentPivotPoint != BlenderManager.PivotPoint.IndividualOrigins) {
             Vector3 center = BlenderHelper.GetTransformationCenter(averagePosition, bounds);
-            data.Transform.position = center + deltaRotation * (data.InitialPosition - center);
+            Vector3 globalDir = data.InitialPosition - center;
+            Vector3 rotatedGlobalDir;
+            if (BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Local) {
+                Vector3 localDir = Quaternion.Inverse(data.InitialRotation) * globalDir;
+                Vector3 rotatedLocalDir = deltaRotation * localDir;
+                rotatedGlobalDir = data.InitialRotation * rotatedLocalDir;
+            }
+            else {
+                rotatedGlobalDir = deltaRotation * globalDir;
+            }
+            data.Transform.position = center + rotatedGlobalDir;
         }
     }
 

@@ -25,7 +25,7 @@ Install with UPM (dependency and the package)
 ```bash
 https://github.com/JonasWischeropp/unity-scene-view-pie-menu.git#1.1.0
 ```
-5. Press `Install` add and wait to finish.
+5. Press `Install` and wait to finish.
 6. Repeat 3-5 with:
 ```bash
 https://github.com/RoxDevvv/Unity-Blender-Control-Style.git?path=/Assets/UnityBlenderControl

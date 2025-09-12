@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -82,7 +83,6 @@ public class BlenderScale : BlenderTransformMode {
         // change mouse icon
         EditorGUIUtility.AddCursorRect(new Rect(0, 0, Screen.width, Screen.height), MouseCursor.ResizeUpRight);
 
-
         float screenScale = Screen.dpi / 96f;
         // draw a black line between the mouse and the pivot point (average object position)
         var mp = Event.current.mousePosition;
@@ -92,35 +92,52 @@ public class BlenderScale : BlenderTransformMode {
         Handles.color = Color.black;
         Handles.DrawLine(center, mouseWorldPos);
 
-        if (BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Unlocked) {
-            return;
+        // TODO eliminate nearly identical code
+        switch (BlenderManager.CurrentAxisMode) {
+            case BlenderManager.AxisMode.Unlocked:
+                break;
+            case BlenderManager.AxisMode.Global:
+                BlenderManager.DrawAxisLine(center, BlenderManager.CurrentAxisVector);
+                break;
+            case BlenderManager.AxisMode.Local:
+                foreach (var data in perObjectData) {
+                    BlenderManager.DrawAxisLine(data.InitialPosition, data.LocalAxis);
+                }
+                break;
         }
-
-        foreach (var data in perObjectData) {
-            BlenderManager.DrawAxisLine(data.Transform.position, data.LocalAxis);
-        }
-    }
-
-    Vector3 ModifyScaleVector(float scaleFactor) {
-        var axis = BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Unlocked
-            ? Vector3.one
-            : BlenderManager.CurrentAxisVector;
-        return new Vector3(
-            axis.x == 0 ? 1f : scaleFactor,
-            axis.y == 0 ? 1f : scaleFactor,
-            axis.z == 0 ? 1f : scaleFactor
-        );
     }
 
     void DoScale(PerObjectData data, float amount) {
-        Vector3 scale = ModifyScaleVector(amount);
         // Scale change
-        data.Transform.localScale = Vector3.Scale(scale, data.InitialScale);
+        Vector3 scale;
+        if (BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Unlocked) {
+            scale = amount * Vector3.one;
+            data.Transform.localScale = Vector3.Scale(scale, data.InitialScale);
+        }
+        else {
+            scale = Vector3.one + BlenderManager.CurrentAxisVector * (amount - 1f);
+            if (BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Global) {
+                data.Transform.localScale = Quaternion.Inverse(data.Transform.rotation) * Vector3.Scale(scale, data.Transform.rotation * data.InitialScale);
+            }
+            else { // BlenderManager.AxisMode.Local
+                data.Transform.localScale = Vector3.Scale(scale, data.InitialScale);
+            }
+        }
 
         // Postion change
         if (BlenderManager.CurrentPivotPoint != BlenderManager.PivotPoint.IndividualOrigins) {
             Vector3 center = BlenderHelper.GetTransformationCenter(averagePosition, bounds);
-            data.Transform.position = center + Vector3.Scale(scale, data.InitialPosition - center);
+            if (BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Unlocked) {
+                data.Transform.position = center + (data.InitialPosition - center) * amount;
+            }
+            else {
+                Vector3 projectionAxis = BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Global
+                    ? BlenderManager.CurrentAxisVector
+                    : data.Transform.rotation * BlenderManager.CurrentAxisVector;
+                float initialDistance = -Vector3.Dot(projectionAxis, center - data.InitialPosition);
+                Vector3 projectedCenter = data.InitialPosition + projectionAxis * -initialDistance;
+                data.Transform.position = projectedCenter + projectionAxis * initialDistance * amount;
+            }
         }
     }
 

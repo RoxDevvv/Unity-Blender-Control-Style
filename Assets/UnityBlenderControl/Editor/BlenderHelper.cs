@@ -1,6 +1,7 @@
 
 // using System;
 // using System.Reflection;
+using System;
 using System.Globalization;
 using UnityEditor;
 using UnityEngine;
@@ -197,6 +198,10 @@ public static class BlenderHelper
                 unitNumber = unitNumber.Substring(0, unitNumber.Length-1);
             }
         }
+        else {
+            return;
+        }
+        e.Use();
     }
 
     public static bool TryParseUnitNumber(string unitNumber, bool isPositive, out float parsedNumber)
@@ -223,7 +228,7 @@ public static class BlenderHelper
             BlenderManager.PivotPoint.MedianPoint => averagePosition,
             BlenderManager.PivotPoint.BoundingBoxCenter => bounds.center,
             BlenderManager.PivotPoint.IndividualOrigins => averagePosition,
-            _ => Vector3.negativeInfinity // Not possible
+            _ => throw new ArgumentOutOfRangeException(nameof(BlenderManager.PivotPoint))
         };
     }
 }

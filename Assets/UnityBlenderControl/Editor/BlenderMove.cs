@@ -70,15 +70,14 @@ public class BlenderMove : BlenderTransformMode {
     }
 
     public override void DrawSceneGUI(SceneView sceneView) {
+        // TODO eliminate nearly identical code
         switch (BlenderManager.CurrentAxisMode) {
             case BlenderManager.AxisMode.Unlocked:
                 break;
             case BlenderManager.AxisMode.Global:
-                // draw at average position
                 BlenderManager.DrawAxisLine(averagePosition, BlenderManager.CurrentAxisVector);
                 break;
             case BlenderManager.AxisMode.Local:
-                // draw at each object's position
                 foreach (var data in perObjectData) {
                     BlenderManager.DrawAxisLine(data.InitialPosition, data.LocalAxis);
                 }

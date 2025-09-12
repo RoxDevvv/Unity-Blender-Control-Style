@@ -15,7 +15,9 @@ public static class PivotPointPieMenu {
 
     [ClutchShortcut("Pivot Point Pie Menu", typeof(SceneView), KeyCode.Period)]
     static void PerformPieMenu(ShortcutArguments arguments) {
-        overlay.Perform(arguments);
+        if (BlenderManager.CurrentTransformMode == null) {
+            overlay.Perform(arguments);
+        }
     }
 
     static PieMenuEntry CreateEntry(string name, string icon, PivotPoint mode) {

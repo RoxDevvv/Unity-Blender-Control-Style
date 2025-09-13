@@ -80,9 +80,6 @@ public class BlenderRotate : BlenderTransformMode {
     }
 
     public override void DrawSceneGUI(SceneView sceneView) {
-        // change mouse icon
-        EditorGUIUtility.AddCursorRect(new Rect(0, 0, Screen.width, Screen.height), MouseCursor.ResizeUpRight);
-
         float screenScale = Screen.dpi / 96f;
         // draw a black line between the mouse and the pivot point (average object position)
         var mp = Event.current.mousePosition;
@@ -91,6 +88,17 @@ public class BlenderRotate : BlenderTransformMode {
         Vector3 center = BlenderHelper.GetTransformationCenter(averagePosition, bounds);
         Handles.color = Color.black;
         Handles.DrawLine(center, mouseWorldPos);
+
+        // TODO refactor duplicated code
+        if (BlenderManager.LocationOnly && BlenderManager.CurrentPivotPoint == BlenderManager.PivotPoint.IndividualOrigins) {
+            EditorGUIUtility.AddCursorRect(new Rect(0, 0, Screen.width, Screen.height), MouseCursor.NotAllowed);
+            // Trigger repaint because the line connecting the center and cursor wouldn't be repainted otherwise when only the mouse position changes.
+            SceneView.RepaintAll();
+            return;
+        }
+        else {
+            EditorGUIUtility.AddCursorRect(new Rect(0, 0, Screen.width, Screen.height), MouseCursor.ResizeUpRight);
+        }
 
         // TODO eliminate nearly identical code
         switch (BlenderManager.CurrentAxisMode) {
@@ -108,25 +116,21 @@ public class BlenderRotate : BlenderTransformMode {
     }
 
     private void DoRotate(SceneView sv, PerObjectData data, float amount) {
+        Quaternion deltaRotation = BlenderManager.CurrentAxisMode switch {
+            BlenderManager.AxisMode.Local => Quaternion.AngleAxis(amount, BlenderManager.CurrentAxisVector),
+            BlenderManager.AxisMode.Global => Quaternion.AngleAxis(amount, BlenderManager.CurrentAxisVector),
+            BlenderManager.AxisMode.Unlocked => Quaternion.AngleAxis(amount, -sv.camera.transform.forward),
+            _ => Quaternion.identity
+        };
+
         // Rotation change
-        Quaternion deltaRotation;
-        switch (BlenderManager.CurrentAxisMode) {
-            case BlenderManager.AxisMode.Local:
-                deltaRotation = Quaternion.AngleAxis(amount, BlenderManager.CurrentAxisVector);
+        if (!BlenderManager.LocationOnly) {
+            if (BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Local) {
                 data.Transform.rotation = data.InitialRotation * deltaRotation;
-                break;
-            case BlenderManager.AxisMode.Global:
-                deltaRotation = Quaternion.AngleAxis(amount, BlenderManager.CurrentAxisVector);
+            }
+            else {
                 data.Transform.rotation = deltaRotation * data.InitialRotation;
-                break;
-            case BlenderManager.AxisMode.Unlocked:
-                deltaRotation = Quaternion.AngleAxis(amount, -sv.camera.transform.forward);
-                data.Transform.rotation = deltaRotation * data.InitialRotation;
-                break;
-            default:
-                deltaRotation = Quaternion.identity;
-                data.Transform.rotation = data.InitialRotation;
-                break;
+            }
         }
 
         // Position change
@@ -146,8 +150,7 @@ public class BlenderRotate : BlenderTransformMode {
         }
     }
 
-    void RotateByMouse(SceneView sv, PerObjectData data)
-    {
+    void RotateByMouse(SceneView sv, PerObjectData data) {
         float snapValue = BlenderHelper.GetSnapRotate();
         // Calculate the center of the object in screen space
         //Vector3 objectCenter = HandleUtility.WorldToGUIPoint(data.Transform.position);

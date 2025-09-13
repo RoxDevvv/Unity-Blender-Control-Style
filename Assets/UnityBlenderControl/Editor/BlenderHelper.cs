@@ -1,6 +1,3 @@
-
-// using System;
-// using System.Reflection;
 using System;
 using System.Globalization;
 using UnityEditor;
@@ -55,24 +52,6 @@ public static class BlenderHelper
         }
     }
 
-    public static Color GetAxisColor(KeyCode keyCode) {
-        if (TransformModeManager.swapYAndZ) {
-            return keyCode switch {
-                KeyCode.X => Color.red,
-                KeyCode.Y => Color.blue,
-                KeyCode.Z => Color.green,
-                _ => Color.white
-            };
-        } else {
-            return keyCode switch {
-                KeyCode.X => Color.red,
-                KeyCode.Y => Color.green,
-                KeyCode.Z => Color.blue,
-                _ => Color.white
-            };
-        }
-    }
-
     public static bool RightMouseHeld = false;
     public static void RightMouseHeldCheck()
     {
@@ -121,15 +100,6 @@ public static class BlenderHelper
         return revert;
     }
 
-    public static KeyCode AxisKeycode(Event e)
-    {
-        if (e.type == EventType.KeyDown && (e.keyCode == KeyCode.X || e.keyCode == KeyCode.Y || e.keyCode == KeyCode.Z)) {
-            e.Use();
-            return e.keyCode;
-        }
-        return KeyCode.None;
-    }
-
     public static bool IsKeyDown(Event evt, KeyCode key)
     {
         return evt.type == EventType.KeyDown && evt.keyCode == key;
@@ -144,7 +114,8 @@ public static class BlenderHelper
             && !RightMouseHeld
             && targets.Length > 0;
 
-        if (trigger) {
+        if (trigger)
+        {
             evt.Use();
         }
         return trigger;
@@ -180,7 +151,8 @@ public static class BlenderHelper
                 unitNumber = unitNumber.Substring(0, unitNumber.Length-1);
             }
         }
-        else {
+        else
+        {
             return;
         }
         e.Use();
@@ -200,12 +172,15 @@ public static class BlenderHelper
         return false;
     }
 
-    public static bool IsModifierPressed(Event e) {
+    public static bool IsModifierPressed(Event e)
+    {
         return e.control || e.alt || e.shift;
     }
 
-    public static Vector3 GetTransformationCenter(Vector3 averagePosition, Bounds bounds) {
-        return BlenderManager.CurrentPivotPoint switch {
+    public static Vector3 GetTransformationCenter(Vector3 averagePosition, Bounds bounds)
+    {
+        return BlenderManager.CurrentPivotPoint switch
+        {
             BlenderManager.PivotPoint.ActiveElement => Selection.activeGameObject.transform.position,
             BlenderManager.PivotPoint.MedianPoint => averagePosition,
             BlenderManager.PivotPoint.BoundingBoxCenter => bounds.center,

@@ -41,6 +41,7 @@ public static class BlenderManager {
     private static bool LockToAxis = false;
     private static PivotRotation PreviousPivotRotation = PivotRotation.Global;
     public static PivotPoint CurrentPivotPoint = PivotPoint.MedianPoint;
+    public static bool LocationOnly = false;
     public static Axis CurrentAxis = Axis.None;
 
     public static AxisMode CurrentAxisMode {

@@ -55,24 +55,6 @@ public static class BlenderHelper
         }
     }
 
-    public static Vector3 GetAxisVector(KeyCode keyCode) {
-        if (TransformModeManager.swapYAndZ) {
-            return keyCode switch {
-                KeyCode.X => Vector3.right,
-                KeyCode.Y => Vector3.forward,
-                KeyCode.Z => Vector3.up,
-                _ => Vector3.one
-            };
-        } else {
-            return keyCode switch {
-                KeyCode.X => Vector3.right,
-                KeyCode.Y => Vector3.up,
-                KeyCode.Z => Vector3.forward,
-                _ => Vector3.one
-            };
-        }
-    }
-
     public static Color GetAxisColor(KeyCode keyCode) {
         if (TransformModeManager.swapYAndZ) {
             return keyCode switch {

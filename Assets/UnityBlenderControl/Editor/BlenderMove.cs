@@ -75,11 +75,11 @@ public class BlenderMove : BlenderTransformMode {
             case BlenderManager.AxisMode.Unlocked:
                 break;
             case BlenderManager.AxisMode.Global:
-                BlenderManager.DrawAxisLine(averagePosition, BlenderManager.CurrentAxisVector);
+                BlenderManager.DrawAxisLine(averagePosition, BlenderManager.CurrentAxisVector, true);
                 break;
             case BlenderManager.AxisMode.Local:
                 foreach (var data in perObjectData) {
-                    BlenderManager.DrawAxisLine(data.InitialPosition, data.LocalAxis);
+                    BlenderManager.DrawAxisLine(data.InitialPosition, data.LocalAxis, Selection.activeTransform == data.Transform);
                 }
                 break;
         }

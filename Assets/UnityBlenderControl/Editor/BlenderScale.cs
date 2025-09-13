@@ -97,11 +97,11 @@ public class BlenderScale : BlenderTransformMode {
             case BlenderManager.AxisMode.Unlocked:
                 break;
             case BlenderManager.AxisMode.Global:
-                BlenderManager.DrawAxisLine(center, BlenderManager.CurrentAxisVector);
+                BlenderManager.DrawAxisLine(center, BlenderManager.CurrentAxisVector, true);
                 break;
             case BlenderManager.AxisMode.Local:
                 foreach (var data in perObjectData) {
-                    BlenderManager.DrawAxisLine(data.InitialPosition, data.LocalAxis);
+                    BlenderManager.DrawAxisLine(data.InitialPosition, data.LocalAxis, Selection.activeTransform == data.Transform);
                 }
                 break;
         }

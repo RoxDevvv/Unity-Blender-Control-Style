@@ -97,11 +97,11 @@ public class BlenderRotate : BlenderTransformMode {
             case BlenderManager.AxisMode.Unlocked:
                 break;
             case BlenderManager.AxisMode.Global:
-                BlenderManager.DrawAxisLine(center, BlenderManager.CurrentAxisVector);
+                BlenderManager.DrawAxisLine(center, BlenderManager.CurrentAxisVector, true);
                 break;
             case BlenderManager.AxisMode.Local:
                 foreach (var data in perObjectData) {
-                    BlenderManager.DrawAxisLine(data.InitialPosition, data.LocalAxis);
+                    BlenderManager.DrawAxisLine(data.InitialPosition, data.LocalAxis, Selection.activeTransform == data.Transform);
                 }
                 break;
         }
@@ -168,7 +168,7 @@ public class BlenderRotate : BlenderTransformMode {
         if (SceneView.lastActiveSceneView != null) {
             Vector3 viewDirection = SceneView.lastActiveSceneView.camera.transform.forward;
             if ((BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Local
-                && Vector3.Dot(viewDirection, data.LocalAxis) > 0f)
+                && Vector3.Dot(viewDirection, Selection.activeTransform.rotation * BlenderManager.CurrentAxisVector) > 0f)
                 || (BlenderManager.CurrentAxisMode == BlenderManager.AxisMode.Global
                 && Vector3.Dot(viewDirection, BlenderManager.CurrentAxisVector) > 0f)) {
                 rotationAngle = -rotationAngle;

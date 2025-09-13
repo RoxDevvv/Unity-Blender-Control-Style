@@ -19,6 +19,13 @@ public static class BlenderManager {
         MedianPoint,
     }
 
+    public enum Axis {
+        None,
+        X,
+        Y,
+        Z,
+    }
+
     static BlenderManager() {
         // Create an instance of BlenderMove when the BlenderManager is enabled
         TransformModes = new List<BlenderTransformMode> { new BlenderMove(), new BlenderRotate(), new BlenderScale() };
@@ -34,6 +41,7 @@ public static class BlenderManager {
     private static bool LockToAxis = false;
     private static PivotRotation PreviousPivotRotation = PivotRotation.Global;
     public static PivotPoint CurrentPivotPoint = PivotPoint.MedianPoint;
+    public static Axis CurrentAxis = Axis.None;
 
     public static AxisMode CurrentAxisMode {
         get {
@@ -44,8 +52,16 @@ public static class BlenderManager {
             }
         }
     }
-    public static Vector3 CurrentAxisVector = Vector3.zero;
-    public static Color CurrentAxisColor = Color.white;
+    public static Vector3 CurrentAxisVector {
+        get {
+            return CurrentAxis switch {
+                Axis.X => Vector3.right,
+                Axis.Y => Vector3.up,
+                Axis.Z => Vector3.forward,
+                _ => Vector3.one
+            };
+        }
+    }
     private static string CurrentNumberString = "";
     private static bool CurrentNumberIsPositive = true;
     public static float CurrentNumber = 0;
@@ -53,12 +69,44 @@ public static class BlenderManager {
 
     private static void Reset() {
         CurrentTransformMode = null;
-        CurrentAxisVector = Vector3.zero;
+        CurrentAxis = Axis.None;
         CurrentNumberString = "";
         CurrentNumberIsPositive = true;
-        // reset AxisMode
+        ResetAxisLockMode();
+    }
+
+    static void AdvanceAxisLockMode() {
+        // change axis mode Unlocked -> Global -> Local -> Unlocked
+        if (!LockToAxis) {
+            LockToAxis = true;
+        }
+        else {
+            if (Tools.pivotRotation == PreviousPivotRotation) {
+                // switch pivot rotation
+                Tools.pivotRotation = Tools.pivotRotation == PivotRotation.Global ? PivotRotation.Local : PivotRotation.Global;
+            }
+            else {
+                // revert to unlocked
+                LockToAxis = false;
+                Tools.pivotRotation = PreviousPivotRotation;
+            }
+        }
+    }
+
+    static void ResetAxisLockMode() {
         LockToAxis = false;
         Tools.pivotRotation = PreviousPivotRotation;
+    }
+
+    static Color GetAxisColor(bool active) {
+        // The active axis is slightly brighter (controlled with c)
+        float c = active ? 0.6f : 0f;
+        return CurrentAxis switch {
+            Axis.X => new Color(1f, c, c),
+            Axis.Y => new Color(c, 1f, c),
+            Axis.Z => new Color(c, c, 1f),
+            _ => Color.white
+        };
     }
 
     private static void OnDuringSceneGUI(SceneView sv) {
@@ -82,32 +130,25 @@ public static class BlenderManager {
             return;
         }
 
-        var axisCode = BlenderHelper.AxisKeycode(Event.current);
-        if (axisCode != KeyCode.None) {
-            var newAxisVector = BlenderHelper.GetAxisVector(axisCode);
-            if (newAxisVector == CurrentAxisVector) {
-                // change axis mode Unlocked -> Global -> Local -> Unlocked
-                if (!LockToAxis) {
-                    LockToAxis = true;
-                } else {
-                    if (Tools.pivotRotation == PreviousPivotRotation) {
-                        // switch pivot rotation
-                        Tools.pivotRotation = Tools.pivotRotation == PivotRotation.Global ? PivotRotation.Local : PivotRotation.Global;
-                    } else {
-                        // revert to unlocked
-                        LockToAxis = false;
-                        Tools.pivotRotation = PreviousPivotRotation;
-                    }
+        if (Event.current.type == EventType.KeyDown && !(Event.current.alt || Event.current.control)) {
+            Axis newAxis = Event.current.keyCode switch {
+                KeyCode.X => Axis.X,
+                KeyCode.Y => swapYAndZ ? Axis.Z : Axis.Y,
+                KeyCode.Z => swapYAndZ ? Axis.Y : Axis.Z,
+                _ => Axis.None
+            };
+            // OnlyOtherAxis = Event.current.shift;
+            if (newAxis != Axis.None) {
+                if (CurrentAxis == Axis.None || newAxis == CurrentAxis) {
+                    AdvanceAxisLockMode();
                 }
-
-                CurrentTransformMode.OnAxisModeChange();
-            } else {
-                LockToAxis = true;
-                Tools.pivotRotation = PreviousPivotRotation;
-
-                CurrentAxisColor = BlenderHelper.GetAxisColor(axisCode);
-                CurrentAxisVector = newAxisVector;
+                else {
+                    ResetAxisLockMode();
+                }
+                CurrentAxis = newAxis;
                 CurrentTransformMode.OnAxisChange();
+                Event.current.Use();
+                return;
             }
         }
 
@@ -115,7 +156,8 @@ public static class BlenderManager {
 
         if (BlenderHelper.TryParseUnitNumber(CurrentNumberString, CurrentNumberIsPositive, out var newNumber)) {
             CurrentNumber = newNumber;
-        } else {
+        }
+        else {
             CurrentNumber = float.NaN;
         }
 
@@ -124,7 +166,8 @@ public static class BlenderManager {
         if (BlenderHelper.RevertKeyPressed(Event.current)) {
             CurrentTransformMode.Cancel();
             Reset();
-        } else if (BlenderHelper.ApplyKeyPressed(Event.current)) {
+        }
+        else if (BlenderHelper.ApplyKeyPressed(Event.current)) {
             CurrentTransformMode.Apply();
             Reset();
         }
@@ -143,12 +186,11 @@ public static class BlenderManager {
         };
     }
 
-    public static void DrawAxisLine(Vector3 origin, Vector3 direction)
-    {
+    public static void DrawAxisLine(Vector3 origin, Vector3 direction, bool active) {
         if (direction == Vector3.one || direction == Vector3.zero)
             return;
 
-        Handles.color = CurrentAxisColor;
+        Handles.color = GetAxisColor(active);
         var startPoint = origin - direction * 1000f;
         var endPoint = origin + direction * 1000f;
         Handles.DrawLine(startPoint, endPoint);

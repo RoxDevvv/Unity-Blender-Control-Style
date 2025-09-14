@@ -1,6 +1,4 @@
-
-// using System;
-// using System.Reflection;
+using System;
 using System.Globalization;
 using UnityEditor;
 using UnityEngine;
@@ -53,43 +51,7 @@ public static class BlenderHelper
             return Vector3.zero;
         }
     }
- 
-    public static Vector3 GetAxisVector(KeyCode keyCode) {
-        if (TransformModeManager.swapYAndZ) {
-            return keyCode switch {
-                KeyCode.X => Vector3.right,
-                KeyCode.Y => Vector3.forward,
-                KeyCode.Z => Vector3.up,
-                _ => Vector3.one
-            }; 
-        } else {
-            return keyCode switch {
-                KeyCode.X => Vector3.right,
-                KeyCode.Y => Vector3.up,
-                KeyCode.Z => Vector3.forward,
-                _ => Vector3.one
-            };
-        }
-    }
 
-    public static Color GetAxisColor(KeyCode keyCode) {
-        if (TransformModeManager.swapYAndZ) {
-            return keyCode switch {
-                KeyCode.X => Color.red,
-                KeyCode.Y => Color.blue,
-                KeyCode.Z => Color.green,
-                _ => Color.white
-            }; 
-        } else {
-            return keyCode switch {
-                KeyCode.X => Color.red,
-                KeyCode.Y => Color.green,
-                KeyCode.Z => Color.blue,
-                _ => Color.white
-            };
-        }
-    }
-    
     public static bool RightMouseHeld = false;
     public static void RightMouseHeldCheck()
     {
@@ -121,7 +83,7 @@ public static class BlenderHelper
     {
         bool cancel = e.type == EventType.KeyDown && (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter)
             || (e.type == EventType.MouseDown && e.button == 0);
-        if (cancel) 
+        if (cancel)
         {
             e.Use();
         }
@@ -131,20 +93,11 @@ public static class BlenderHelper
     {
         bool revert = (e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape)
             || (e.type == EventType.MouseDown && e.button == 1);
-        if (revert) 
+        if (revert)
         {
             e.Use();
         }
         return revert;
-    }
-
-    public static KeyCode AxisKeycode(Event e)
-    {
-        if (e.type == EventType.KeyDown && (e.keyCode == KeyCode.X || e.keyCode == KeyCode.Y || e.keyCode == KeyCode.Z)) {
-            e.Use();
-            return e.keyCode;
-        }
-        return KeyCode.None;
     }
 
     public static bool IsKeyDown(Event evt, KeyCode key)
@@ -161,7 +114,8 @@ public static class BlenderHelper
             && !RightMouseHeld
             && targets.Length > 0;
 
-        if (trigger) {
+        if (trigger)
+        {
             evt.Use();
         }
         return trigger;
@@ -197,6 +151,11 @@ public static class BlenderHelper
                 unitNumber = unitNumber.Substring(0, unitNumber.Length-1);
             }
         }
+        else
+        {
+            return;
+        }
+        e.Use();
     }
 
     public static bool TryParseUnitNumber(string unitNumber, bool isPositive, out float parsedNumber)
@@ -212,8 +171,21 @@ public static class BlenderHelper
         }
         return false;
     }
-    
-    public static bool IsModifierPressed(Event e) {
+
+    public static bool IsModifierPressed(Event e)
+    {
         return e.control || e.alt || e.shift;
+    }
+
+    public static Vector3 GetTransformationCenter(Vector3 averagePosition, Bounds bounds)
+    {
+        return BlenderManager.CurrentPivotPoint switch
+        {
+            BlenderManager.PivotPoint.ActiveElement => Selection.activeGameObject.transform.position,
+            BlenderManager.PivotPoint.MedianPoint => averagePosition,
+            BlenderManager.PivotPoint.BoundingBoxCenter => bounds.center,
+            BlenderManager.PivotPoint.IndividualOrigins => averagePosition,
+            _ => throw new ArgumentOutOfRangeException(nameof(BlenderManager.PivotPoint))
+        };
     }
 }

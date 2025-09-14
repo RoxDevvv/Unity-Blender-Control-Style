@@ -1,5 +1,6 @@
-
-![Logo](https://raw.githubusercontent.com/RoxDevvv/Unity-Blender-Control-Style/Alpha/logo.png)
+<p align="center">
+<img src="https://raw.githubusercontent.com/RoxDevvv/Unity-Blender-Control-Style/Alpha/logo.png" alt="Logo">
+</p>
 
 
 # Unity Blender Controller
@@ -9,24 +10,27 @@ Unity Blender-Style Transform Plugin
 
 # Overview
 
-This Unity plugin aims to bring Blender-style transform controls to Unity, providing users with a familiar and intuitive way to manipulate objects within the scene. Inspired by Blender's 'G,S,R'  functionality, our plugin enables users to easily move, rotate, and scale objects using a similar workflow.
+This Unity plugin aims to bring Blender-style transform controls to Unity, providing users with a familiar and intuitive way to manipulate objects within the scene. Inspired by Blender's 'G,S,R' functionality, our plugin enables users to easily move, rotate, and scale objects using a similar workflow.
 
 
 ## Getting Started
 ## Installation
 
-Install with UPM
+Install with UPM (dependency and the package)
 
-
-  1 - Open your Unity project.
-  2 - Navigate to the Unity Package Manager (Window > Package Manager).
-  3 - Click the + button and select Add package from git url....
-  ```bash
-   https://github.com/RoxDevvv/Unity-Blender-Control-Style.git?path=/Assets/UnityBlenderControl
-  ```
-  4 - Press add wait to finish.
-  
-  5 - enjoy!
+1. Open your Unity project.
+2. Navigate to the Unity Package Manager (Window > Package Manager).
+3. Click the `+` button and select `Add package from git URL...`
+4. Paste:
+```bash
+https://github.com/JonasWischeropp/unity-scene-view-pie-menu.git#1.1.0
+```
+5. Press `Install` and wait to finish.
+6. Repeat 3-5 with:
+```bash
+https://github.com/RoxDevvv/Unity-Blender-Control-Style.git?path=/Assets/UnityBlenderControl
+```
+7. enjoy!
 
     
 ## Usage/Examples

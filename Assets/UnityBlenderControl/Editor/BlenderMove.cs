@@ -70,17 +70,16 @@ public class BlenderMove : BlenderTransformMode {
     }
 
     public override void DrawSceneGUI(SceneView sceneView) {
+        // TODO eliminate nearly identical code
         switch (BlenderManager.CurrentAxisMode) {
             case BlenderManager.AxisMode.Unlocked:
                 break;
             case BlenderManager.AxisMode.Global:
-                // draw at average position
-                BlenderManager.DrawAxisLine(averagePosition, BlenderManager.CurrentAxisVector);
+                BlenderManager.DrawAxisLine(averagePosition, BlenderManager.CurrentAxisVector, true);
                 break;
             case BlenderManager.AxisMode.Local:
-                // draw at each object's position
                 foreach (var data in perObjectData) {
-                    BlenderManager.DrawAxisLine(data.Transform.position, data.LocalAxis);
+                    BlenderManager.DrawAxisLine(data.InitialPosition, data.LocalAxis, Selection.activeTransform == data.Transform);
                 }
                 break;
         }
@@ -107,7 +106,7 @@ public class BlenderMove : BlenderTransformMode {
             _ => Vector3.zero
         };
     }
-    
+
     private void MoveByMouse(PerObjectData data) {
         Vector3 currentMousePosition = GetWorldMouse(data.InitialPosition);
         Vector3 snapValue = BlenderHelper.GetSnapMove();

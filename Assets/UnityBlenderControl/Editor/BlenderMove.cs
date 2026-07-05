@@ -15,7 +15,7 @@ public class BlenderMove : BlenderTransformMode {
     public Vector3 averagePosition;
 
     public override bool ShouldTrigger(Event evt) {
-        return BlenderHelper.ShouldTriggerSimple(evt, KeyCode.G);
+        return BlenderHelper.ShouldTriggerSimple(evt, KeyBindings.GetBinding(KeyBindings.Action.Move));
     }
 
     public override void Initialize() {

@@ -14,10 +14,9 @@ public static class PivotPointPieMenu {
         CreateEntry("Media Point", "TreeEditor.Material", PivotPoint.MedianPoint),
     });
 
-    [ClutchShortcut("Blender Controls/Pivot Point Pie Menu", typeof(SceneView), KeyCode.Period)]
-    static void PerformPieMenu(ShortcutArguments arguments) {
+    public static void Trigger(ShortcutStage stage) {
         if (BlenderManager.CurrentTransformMode == null) {
-            overlay.Perform(arguments);
+            overlay.Perform(new ShortcutArguments { stage = stage, context = SceneView.lastActiveSceneView });
         }
     }
 

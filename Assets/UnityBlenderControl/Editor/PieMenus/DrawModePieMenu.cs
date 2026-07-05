@@ -10,9 +10,8 @@ public static class DrawModePieMenu {
         CreateEntry("Shaded Wireframe", "d_PreMatSphere", DrawCameraMode.TexturedWire),
     });
 
-    [ClutchShortcut("Blender Controls/Draw Mode Pie Menu", typeof(SceneView), KeyCode.Z)]
-    static void PerformPieMenu(ShortcutArguments arguments) {
-        overlay.Perform(arguments);
+    public static void Trigger(ShortcutStage stage) {
+        overlay.Perform(new ShortcutArguments { stage = stage, context = SceneView.lastActiveSceneView });
     }
 
     static PieMenuEntry CreateEntry(string name, string icon, DrawCameraMode mode) {

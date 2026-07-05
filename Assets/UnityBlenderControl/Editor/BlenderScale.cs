@@ -18,7 +18,7 @@ public class BlenderScale : BlenderTransformMode {
     Bounds bounds;
 
     public override bool ShouldTrigger(Event evt) {
-        return BlenderHelper.ShouldTriggerSimple(evt, KeyCode.S);
+        return BlenderHelper.ShouldTriggerSimple(evt, KeyBindings.GetBinding(KeyBindings.Action.Scale));
     }
 
     public override void Initialize() {

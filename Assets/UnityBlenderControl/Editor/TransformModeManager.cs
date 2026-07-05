@@ -11,7 +11,7 @@ public static class TransformModeManager
     internal static void LoadSettings() {
         isBlenderPluginEnabled = EditorPrefs.GetBool("BlenderControlPluginEnabled", true);
         swapYAndZ = EditorPrefs.GetBool("BlenderControlPluginSwapYAndZ", false);
-        
+        KeyBindings.Load();
     }
     
     internal static void SaveSettings()

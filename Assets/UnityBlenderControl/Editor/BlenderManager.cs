@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.ShortcutManagement;
 using UnityEngine;
 using static TransformModeManager;
 
@@ -68,6 +69,9 @@ public static class BlenderManager {
     public static float CurrentNumber = 0;
     public static bool MoveByNumber => !float.IsNaN(CurrentNumber);
 
+    private static bool drawModePieKeyHeld = false;
+    private static bool pivotPointPieKeyHeld = false;
+
     private static void Reset() {
         CurrentTransformMode = null;
         CurrentAxis = Axis.None;
@@ -110,12 +114,31 @@ public static class BlenderManager {
         };
     }
 
+    private static void HandlePieMenus() {
+        CheckPieMenuKey(KeyBindings.Action.DrawModePieMenu, ref drawModePieKeyHeld, DrawModePieMenu.Trigger);
+        CheckPieMenuKey(KeyBindings.Action.PivotPointPieMenu, ref pivotPointPieKeyHeld, PivotPointPieMenu.Trigger);
+    }
+
+    private static void CheckPieMenuKey(KeyBindings.Action action, ref bool keyHeld, Action<ShortcutStage> trigger) {
+        KeyCode boundKey = KeyBindings.GetBinding(action);
+        if (!keyHeld && Event.current.type == EventType.KeyDown && Event.current.keyCode == boundKey) {
+            keyHeld = true;
+            trigger(ShortcutStage.Begin);
+        }
+        else if (keyHeld && Event.current.type == EventType.KeyUp && Event.current.keyCode == boundKey) {
+            keyHeld = false;
+            trigger(ShortcutStage.End);
+        }
+    }
+
     private static void OnDuringSceneGUI(SceneView sv) {
         if (!isBlenderPluginEnabled)
             return;
 
         BlenderHelper.RightMouseHeldCheck();
         BlenderHelper.CheckSnap();
+
+        HandlePieMenus();
 
         foreach (var transformMode in TransformModes) {
             if (transformMode != CurrentTransformMode && transformMode.ShouldTrigger(Event.current)) {
@@ -132,12 +155,13 @@ public static class BlenderManager {
         }
 
         if (Event.current.type == EventType.KeyDown && !(Event.current.alt || Event.current.control)) {
-            Axis newAxis = Event.current.keyCode switch {
-                KeyCode.X => Axis.X,
-                KeyCode.Y => swapYAndZ ? Axis.Z : Axis.Y,
-                KeyCode.Z => swapYAndZ ? Axis.Y : Axis.Z,
-                _ => Axis.None
-            };
+            Axis newAxis = Axis.None;
+            if (Event.current.keyCode == KeyBindings.GetBinding(KeyBindings.Action.AxisX))
+                newAxis = Axis.X;
+            else if (Event.current.keyCode == KeyBindings.GetBinding(KeyBindings.Action.AxisY))
+                newAxis = swapYAndZ ? Axis.Z : Axis.Y;
+            else if (Event.current.keyCode == KeyBindings.GetBinding(KeyBindings.Action.AxisZ))
+                newAxis = swapYAndZ ? Axis.Y : Axis.Z;
             // OnlyOtherAxis = Event.current.shift;
             if (newAxis != Axis.None) {
                 if (CurrentAxis == Axis.None || newAxis == CurrentAxis) {

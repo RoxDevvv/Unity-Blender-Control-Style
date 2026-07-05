@@ -18,7 +18,7 @@ public class BlenderRotate : BlenderTransformMode {
     Bounds bounds;
 
     public override bool ShouldTrigger(Event evt) {
-        return BlenderHelper.ShouldTriggerSimple(evt, KeyCode.R);
+        return BlenderHelper.ShouldTriggerSimple(evt, KeyBindings.GetBinding(KeyBindings.Action.Rotate));
     }
 
     public override void Initialize() {
